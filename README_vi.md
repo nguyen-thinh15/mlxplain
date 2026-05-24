@@ -128,6 +128,8 @@ report.figures["counterfactuals"].savefig("counterfactuals.svg")
 | **Hồi quy Logistic** | Trọng số hệ số × giá trị đặc trưng | **Phân tích (Analytical):** Nghịch đảo toán học chính xác |
 | **Cây quyết định & Rừng ngẫu nhiên** | Chênh lệch xác suất lớp ở cấp độ phân tách dọc theo các đường đi quyết định | **Nhiễu loạn (Perturbation):** Tìm kiếm không gian ranh giới phân tách tuần tự |
 | **Ensemble Boosting** *(XGBoost & LightGBM)* | Giá trị SHAP (Shapley Additive exPlanations) | **Nhiễu loạn (Perturbation):** Tìm kiếm ranh giới giới hạn trong tập mẫu |
+| **Phát hiện Bất thường** *(Isolation Forest)* | SHAP `TreeExplainer` trên cây cô lập | **Nhiễu loạn (Perturbation):** Tìm kiếm ranh giới phân tách xác suất bất thường |
+| **Phân cụm** *(K-Means)* | Sự khác biệt khoảng cách không gian so với trọng tâm mục tiêu | **Phân tích (Analytical):** Chiếu hình học nửa không gian L2 chính xác |
 | **Học sâu** *(Mạng thần kinh)* | LIME / Integrated Gradients | *(Lên kế hoạch / Tạm hoãn)* |
 
 ### Biểu đồ trên tất cả các loại mô hình
@@ -209,9 +211,33 @@ uv run python examples/03_ensemble_credit_risk.py
 
 # 4. Chạy ví dụ Nâng cao 12 Đặc trưng sản sinh Hồ sơ HTML
 uv run python examples/04_advanced_credit_risk.py
+
+# 5. Chạy ví dụ Phát hiện Bất thường không giám sát
+uv run python examples/05_anomaly_detection.py
+
+# 6. Chạy ví dụ Phân cụm KMeans phân khúc khách hàng
+uv run python examples/06_kmeans_clustering.py
 ```
 
 Tất cả các ví dụ sẽ lưu biểu đồ được tạo vào thư mục `examples/output/`. Ví dụ nâng cao cũng sẽ tạo tệp `dossier.html` trong thư mục đó — hãy mở nó bằng trình duyệt của bạn để trải nghiệm bảng điều khiển tương tác kính mờ cao cấp!
+
+---
+
+## 🌀 Giải thích Mô hình Học máy Không giám sát
+
+**mlxplain** là thư viện giải thích tổng quát đầu tiên hợp nhất các mô hình phân loại có giám sát với **học máy không giám sát XAI** (Phát hiện Bất thường & Phân cụm) dưới cùng một tiêu chuẩn trình bày biểu đồ trực quan và báo cáo cấu trúc cao cấp!
+
+### 1. Phát hiện Bất thường (qua `IsolationForest`)
+* **Chuẩn hóa điểm số**: Chúng tôi chuẩn hóa điểm số bất thường của Isolation Forest từ scikit-learn về đoạn $[0, 1]$, xử lý chính xác như một xác suất với ngưỡng mặc định `0.5`. Tích hợp hoàn toàn qua API `explain()` thống nhất.
+* **SHAP Drivers**: Sử dụng SHAP `TreeExplainer` trên các cây cô lập để trích xuất các đặc trưng đẩy mẫu dữ liệu vào trạng thái bất thường hay bình thường.
+* **Cải thiện Phản thực tế**: Sử dụng thuật toán tìm kiếm nhiễu loạn giới hạn mẫu để xác định các thay đổi thuộc tính tối thiểu giúp khôi phục hệ thống từ trạng thái bất thường về bình thường.
+
+### 2. Phân cụm (qua `KMeans`)
+* **Endpoint riêng biệt**: Cung cấp hàm `explain_cluster()` để giải thích quyết định phân cụm của K-Means so với cụm á quân (cận kề thứ 2) hoặc một cụm mục tiêu do người dùng chỉ định.
+* **Nhân tố khoảng cách**: Đo lường đóng góp của từng đặc trưng trong việc giữ mẫu dữ liệu gần với trọng tâm được gán $c$ hơn trọng tâm mục tiêu $t$:
+  $$\text{impact}_i = (x_i - t_i)^2 - (x_i - c_i)^2$$
+* **Lộ trình nâng cấp Phản thực tế đóng**: Sử dụng công thức toán học **chiếu hình học L2 chính xác** để tính toán tức thì các thay đổi thuộc tính tối thiểu giúp nâng cấp/chuyển dịch phân khúc khách hàng mà không cần vòng lặp!
+* **Thước đo cụm tương đồng**: Biến đổi vectơ khoảng cách Euclidean thành điểm số tương đồng $[0, 1]$ ($p = d_t^2 / (d_c^2 + d_t^2)$) giúp tái sử dụng hoàn toàn biểu đồ thước đo trực quan tiêu chuẩn.
 
 ---
 
