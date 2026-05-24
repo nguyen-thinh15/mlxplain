@@ -15,12 +15,12 @@ kiwisolver==1.5.0
 llvmlite==0.47.0
     # via numba
 matplotlib==3.10.9
-    # via mlxplain (pyproject.toml)
+    # via mlxplain-xai (pyproject.toml)
 numba==0.65.1
     # via shap
 numpy==2.2.6
     # via
-    #   mlxplain (pyproject.toml)
+    #   mlxplain-xai (pyproject.toml)
     #   contourpy
     #   matplotlib
     #   numba
@@ -46,14 +46,14 @@ pytz==2026.2
     # via pandas
 scikit-learn==1.7.2
     # via
-    #   mlxplain (pyproject.toml)
+    #   mlxplain-xai (pyproject.toml)
     #   shap
 scipy==1.15.3
     # via
     #   scikit-learn
     #   shap
 shap==0.49.1
-    # via mlxplain (pyproject.toml)
+    # via mlxplain-xai (pyproject.toml)
 six==1.17.0
     # via python-dateutil
 slicer==0.0.8
