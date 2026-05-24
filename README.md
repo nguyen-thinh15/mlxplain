@@ -14,6 +14,10 @@
   <a href="#-supported-models--xai-translators"><img src="https://img.shields.io/badge/models-LogReg%20%7C%20Trees%20%7C%20XGBoost-teal.svg" alt="Supported Models"></a>
 </p>
 
+<p align="center">
+  🇺🇸 <strong>English</strong> • <a href="README_vi.md">🇻🇳 Tiếng Việt</a>
+</p>
+
 ---
 
 ## 🔥 What You Get
