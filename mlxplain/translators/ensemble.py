@@ -15,6 +15,9 @@ from mlxplain.translators.base import BaseTranslator
 class EnsembleTranslator(BaseTranslator):
     """Translates XGBoost / LightGBM predictions via SHAP values."""
 
+    def __init__(self, language: str = "en"):
+        super().__init__(language)
+
     def get_probability(self, model, X: np.ndarray, idx: int) -> float:
         instance = X[idx].reshape(1, -1)
         with warnings.catch_warnings():
@@ -67,12 +70,17 @@ class EnsembleTranslator(BaseTranslator):
 
         drivers = []
         for name, val, sv in zip(feature_names, instance, values, strict=False):
+            if self.language == "vi":
+                direction = "tích cực" if sv >= 0 else "tiêu cực"
+            else:
+                direction = "positive" if sv >= 0 else "negative"
+
             drivers.append(
                 FeatureDriver(
                     feature=name,
                     value=float(val),
                     impact=float(abs(sv)),
-                    direction="positive" if sv >= 0 else "negative",
+                    direction=direction,
                 )
             )
 

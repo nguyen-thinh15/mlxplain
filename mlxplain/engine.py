@@ -17,11 +17,11 @@ from mlxplain.translators.tree import TreeTranslator
 from mlxplain.visualizations.charts import plot_report
 
 
-def _detect_translator(model) -> BaseTranslator:
+def _detect_translator(model, language: str = "en") -> BaseTranslator:
     """Auto-detect the model type and return the appropriate translator."""
     # Logistic regression (covers LogisticRegression and subclasses like LogisticRegressionCV)
     if isinstance(model, LogisticRegression):
-        return LogisticTranslator()
+        return LogisticTranslator(language=language)
 
     # Ensemble boosting (XGBoost, LightGBM) — check before tree since
     # XGBClassifier has estimators_ too
@@ -29,7 +29,7 @@ def _detect_translator(model) -> BaseTranslator:
         import xgboost
 
         if isinstance(model, xgboost.XGBClassifier):
-            return EnsembleTranslator()
+            return EnsembleTranslator(language=language)
     except ImportError:
         pass
 
@@ -37,13 +37,13 @@ def _detect_translator(model) -> BaseTranslator:
         import lightgbm
 
         if isinstance(model, lightgbm.LGBMClassifier):
-            return EnsembleTranslator()
+            return EnsembleTranslator(language=language)
     except ImportError:
         pass
 
     # Tree-based (DecisionTree, RandomForest)
     if isinstance(model, DecisionTreeClassifier | RandomForestClassifier):
-        return TreeTranslator()
+        return TreeTranslator(language=language)
 
     raise ValueError(
         f"Unsupported model type: {type(model).__name__}. "
@@ -75,6 +75,7 @@ def explain(
     positive_label: str = "Positive",
     negative_label: str = "Negative",
     top_k: int | None = None,
+    language: str = "en",
 ) -> ExplanationReport:
     """Generic domain-agnostic explanation for any supported binary classifier.
 
@@ -87,6 +88,7 @@ def explain(
         positive_label: Label for probability >= threshold.
         negative_label: Label for probability < threshold.
         top_k: If set, keep only the top-k drivers per direction (by impact).
+        language: Language for the output driver directions ("en" or "vi").
 
     Returns:
         ExplanationReport with prediction, drivers, counterfactuals, and charts.
@@ -98,7 +100,13 @@ def explain(
     if feature_names is None:
         feature_names = [f"f{i}" for i in range(n_features)]
 
-    translator = _detect_translator(model)
+    if language == "vi":
+        if positive_label == "Positive":
+            positive_label = "Tích cực"
+        if negative_label == "Negative":
+            negative_label = "Tiêu cực"
+
+    translator = _detect_translator(model, language=language)
 
     # 1. Probability
     probability = translator.get_probability(model, X, idx)
@@ -109,12 +117,12 @@ def explain(
     # 3. Feature drivers
     all_drivers = translator.extract_drivers(model, X, idx, feature_names)
     positive_drivers = sorted(
-        [d for d in all_drivers if d.direction == "positive"],
+        [d for d in all_drivers if d.direction in ("positive", "tích cực")],
         key=lambda d: d.impact,
         reverse=True,
     )
     negative_drivers = sorted(
-        [d for d in all_drivers if d.direction == "negative"],
+        [d for d in all_drivers if d.direction in ("negative", "tiêu cực")],
         key=lambda d: d.impact,
         reverse=True,
     )
@@ -143,6 +151,7 @@ def explain(
     report.domain_output = {
         "positive_label": positive_label,
         "negative_label": negative_label,
+        "language": language,
     }
     report.figures = plot_report(report)
 
@@ -156,6 +165,7 @@ def explain_risk(
     feature_names: list[str] | None = None,
     threshold: float = 0.5,
     top_k: int | None = None,
+    language: str = "en",
 ) -> ExplanationReport:
     """Credit risk convenience wrapper.
 
@@ -169,6 +179,7 @@ def explain_risk(
         feature_names=feature_names,
         threshold=threshold,
         top_k=top_k,
+        language=language,
     )
     domain = CreditRiskDomain()
     return domain.interpret(report)

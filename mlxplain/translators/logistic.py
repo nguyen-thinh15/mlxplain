@@ -12,6 +12,9 @@ from mlxplain.translators.base import BaseTranslator
 class LogisticTranslator(BaseTranslator):
     """Translates logistic regression predictions into feature contributions."""
 
+    def __init__(self, language: str = "en"):
+        super().__init__(language)
+
     def get_probability(self, model, X: np.ndarray, idx: int) -> float:
         instance = X[idx].reshape(1, -1)
         return float(model.predict_proba(instance)[0, 1])
@@ -23,12 +26,17 @@ class LogisticTranslator(BaseTranslator):
 
         drivers = []
         for name, val, contrib in zip(feature_names, instance, contributions, strict=False):
+            if self.language == "vi":
+                direction = "tích cực" if contrib >= 0 else "tiêu cực"
+            else:
+                direction = "positive" if contrib >= 0 else "negative"
+
             drivers.append(
                 FeatureDriver(
                     feature=name,
                     value=float(val),
                     impact=float(abs(contrib)),
-                    direction="positive" if contrib >= 0 else "negative",
+                    direction=direction,
                 )
             )
 
