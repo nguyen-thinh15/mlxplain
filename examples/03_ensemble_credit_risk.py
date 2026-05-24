@@ -13,7 +13,9 @@ This example:
 from __future__ import annotations
 
 import os
+
 import numpy as np
+
 from mlxplain import explain_risk
 
 # Try to import xgboost
@@ -54,13 +56,7 @@ def main():
 
     # 2. Train an XGBoost model
     print("Training XGBoost XGBClassifier model...")
-    model = xgb.XGBClassifier(
-        n_estimators=10,
-        max_depth=3,
-        learning_rate=0.1,
-        random_state=42,
-        eval_metric="logloss"
-    )
+    model = xgb.XGBClassifier(n_estimators=10, max_depth=3, learning_rate=0.1, random_state=42, eval_metric="logloss")
     model.fit(X, y)
 
     # 3. Select a high-risk applicant who gets declined
@@ -68,7 +64,7 @@ def main():
     high_risk_idx = declined_indices[0]
     applicant_values = X[high_risk_idx]
     print(f"\nSelected declined applicant at index {high_risk_idx}:")
-    for name, val in zip(feature_names, applicant_values):
+    for name, val in zip(feature_names, applicant_values, strict=False):
         print(f"  {name}: {val:.1f}")
 
     # 4. Generate credit risk explanation report
@@ -97,7 +93,7 @@ def main():
     report.figures["drivers"].savefig(os.path.join(output_dir, "ensemble_drivers.png"), dpi=150)
     report.figures["counterfactuals"].savefig(os.path.join(output_dir, "ensemble_counterfactuals.png"), dpi=150)
 
-    print(f"Success! Matplotlib figures successfully saved to:")
+    print("Success! Matplotlib figures successfully saved to:")
     print(f"  - {os.path.join(output_dir, 'ensemble_gauge.png')}")
     print(f"  - {os.path.join(output_dir, 'ensemble_drivers.png')}")
     print(f"  - {os.path.join(output_dir, 'ensemble_counterfactuals.png')}")

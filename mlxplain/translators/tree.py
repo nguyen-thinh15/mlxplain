@@ -16,16 +16,11 @@ class TreeTranslator(BaseTranslator):
         instance = X[idx].reshape(1, -1)
         return float(model.predict_proba(instance)[0, 1])
 
-    def extract_drivers(
-        self, model, X: np.ndarray, idx: int, feature_names: list[str]
-    ) -> list[FeatureDriver]:
+    def extract_drivers(self, model, X: np.ndarray, idx: int, feature_names: list[str]) -> list[FeatureDriver]:
         instance = X[idx]
 
         # Determine estimators
-        if hasattr(model, "estimators_"):
-            estimators = model.estimators_
-        else:
-            estimators = [model]
+        estimators = model.estimators_ if hasattr(model, "estimators_") else [model]
 
         # Accumulate feature contributions across all estimators
         all_contributions: dict[str, list[float]] = {}
@@ -50,10 +45,7 @@ class TreeTranslator(BaseTranslator):
                 thresh = thresholds[node_id]
 
                 # Determine child node
-                if feat_val <= thresh:
-                    child_node_id = children_left[node_id]
-                else:
-                    child_node_id = children_right[node_id]
+                child_node_id = children_left[node_id] if feat_val <= thresh else children_right[node_id]
 
                 # Calculate probability difference
                 counts_node = values[node_id].flatten()
@@ -103,6 +95,4 @@ class TreeTranslator(BaseTranslator):
         threshold: float,
         feature_names: list[str],
     ) -> list[Counterfactual]:
-        return compute_counterfactuals_perturbation(
-            model, X[idx], threshold, feature_names
-        )
+        return compute_counterfactuals_perturbation(model, X[idx], threshold, feature_names)

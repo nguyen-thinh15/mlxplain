@@ -35,9 +35,7 @@ def generate_credit_memo(report: ExplanationReport) -> str:
         lines.append("CURE PATHS (changes needed for approval):")
         for cp in cure_paths:
             direction = "increase" if cp.change_needed > 0 else "decrease"
-            lines.append(
-                f"  → {cp.feature}: {direction} from {cp.current_value:.4g} to {cp.target_value:.4g}"
-            )
+            lines.append(f"  → {cp.feature}: {direction} from {cp.current_value:.4g} to {cp.target_value:.4g}")
         lines.append("")
 
     return "\n".join(lines)

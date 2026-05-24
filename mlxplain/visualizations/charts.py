@@ -49,9 +49,7 @@ def plot_drivers_waterfall(
 ) -> Figure:
     """Horizontal waterfall of positive vs. negative feature contributions."""
     # Combine and sort by impact
-    all_drivers = sorted(
-        positive_drivers + negative_drivers, key=lambda d: d.impact, reverse=True
-    )
+    all_drivers = sorted(positive_drivers + negative_drivers, key=lambda d: d.impact, reverse=True)
     if not all_drivers:
         fig = Figure(figsize=(8, 2))
         ax = fig.add_subplot(111)

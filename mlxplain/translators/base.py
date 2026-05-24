@@ -17,9 +17,7 @@ class BaseTranslator(ABC):
         """Return P(positive class) for instance at index `idx`."""
 
     @abstractmethod
-    def extract_drivers(
-        self, model, X: np.ndarray, idx: int, feature_names: list[str]
-    ) -> list[FeatureDriver]:
+    def extract_drivers(self, model, X: np.ndarray, idx: int, feature_names: list[str]) -> list[FeatureDriver]:
         """Extract per-feature contributions for the given instance."""
 
     @abstractmethod

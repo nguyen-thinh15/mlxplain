@@ -33,7 +33,7 @@ def compute_counterfactuals_logistic(
     delta_log_odds = target_log_odds - current_log_odds
 
     counterfactuals = []
-    for i, (coef, name) in enumerate(zip(coefs, feature_names)):
+    for i, (coef, name) in enumerate(zip(coefs, feature_names, strict=False)):
         if abs(coef) < 1e-10:
             continue
         change = delta_log_odds / coef

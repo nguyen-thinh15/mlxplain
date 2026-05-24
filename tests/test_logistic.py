@@ -5,7 +5,7 @@ import pytest
 from sklearn.linear_model import LogisticRegression
 
 from mlxplain import explain
-from mlxplain.core.report import ExplanationReport, FeatureDriver, Counterfactual
+from mlxplain.core.report import Counterfactual, ExplanationReport, FeatureDriver
 
 
 @pytest.fixture
@@ -63,4 +63,3 @@ def test_figures_generated(logistic_model):
     assert "gauge" in report.figures
     assert "drivers" in report.figures
     assert "counterfactuals" in report.figures
-

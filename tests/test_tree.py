@@ -2,8 +2,8 @@
 
 import numpy as np
 import pytest
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 from mlxplain import explain
 from mlxplain.core.report import ExplanationReport, FeatureDriver
@@ -70,4 +70,3 @@ def test_random_forest_explain_returns_report():
     assert all(isinstance(d, FeatureDriver) for d in all_drivers)
     assert "gauge" in report.figures
     assert "drivers" in report.figures
-

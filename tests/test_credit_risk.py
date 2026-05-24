@@ -46,4 +46,3 @@ def test_credit_risk_figures(credit_model):
     report = explain_risk(model, X, idx=0, feature_names=names)
     assert "gauge" in report.figures
     assert "drivers" in report.figures
-

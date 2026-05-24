@@ -1,9 +1,9 @@
 """End-to-end tests for EnsembleTranslator (XGBoost and LightGBM explanations)."""
 
+import lightgbm as lgb
 import numpy as np
 import pytest
 import xgboost as xgb
-import lightgbm as lgb
 
 from mlxplain import explain
 from mlxplain.core.report import ExplanationReport, FeatureDriver
@@ -45,4 +45,3 @@ def test_lightgbm_explain_returns_report(synthetic_data):
     assert all(isinstance(d, FeatureDriver) for d in all_drivers)
     assert "gauge" in report.figures
     assert "drivers" in report.figures
-

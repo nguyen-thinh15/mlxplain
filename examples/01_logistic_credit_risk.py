@@ -12,8 +12,10 @@ This example:
 from __future__ import annotations
 
 import os
+
 import numpy as np
 from sklearn.linear_model import LogisticRegression
+
 from mlxplain import explain_risk
 
 
@@ -48,7 +50,7 @@ def main():
     high_risk_idx = np.where(y == 1)[0][0]
     applicant_values = X[high_risk_idx]
     print(f"\nSelected high-risk applicant at index {high_risk_idx}:")
-    for name, val in zip(feature_names, applicant_values):
+    for name, val in zip(feature_names, applicant_values, strict=False):
         print(f"  {name}: {val:.1f}")
 
     # 4. Generate credit risk explanation report
@@ -78,7 +80,7 @@ def main():
     report.figures["drivers"].savefig(os.path.join(output_dir, "logistic_drivers.png"), dpi=150)
     report.figures["counterfactuals"].savefig(os.path.join(output_dir, "logistic_counterfactuals.png"), dpi=150)
 
-    print(f"Success! Matplotlib figures successfully saved to:")
+    print("Success! Matplotlib figures successfully saved to:")
     print(f"  - {os.path.join(output_dir, 'logistic_gauge.png')}")
     print(f"  - {os.path.join(output_dir, 'logistic_drivers.png')}")
     print(f"  - {os.path.join(output_dir, 'logistic_counterfactuals.png')}")

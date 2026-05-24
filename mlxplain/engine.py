@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
 
 from mlxplain.core.report import ExplanationReport
 from mlxplain.core.threshold import classify
@@ -27,6 +27,7 @@ def _detect_translator(model) -> BaseTranslator:
     # XGBClassifier has estimators_ too
     try:
         import xgboost
+
         if isinstance(model, xgboost.XGBClassifier):
             return EnsembleTranslator()
     except ImportError:
@@ -34,13 +35,14 @@ def _detect_translator(model) -> BaseTranslator:
 
     try:
         import lightgbm
+
         if isinstance(model, lightgbm.LGBMClassifier):
             return EnsembleTranslator()
     except ImportError:
         pass
 
     # Tree-based (DecisionTree, RandomForest)
-    if isinstance(model, (DecisionTreeClassifier, RandomForestClassifier)):
+    if isinstance(model, DecisionTreeClassifier | RandomForestClassifier):
         return TreeTranslator()
 
     raise ValueError(
@@ -51,19 +53,17 @@ def _detect_translator(model) -> BaseTranslator:
 
 
 def _validate_inputs(
-    X: np.ndarray, idx: int, feature_names: list[str] | None,
+    X: np.ndarray,
+    idx: int,
+    feature_names: list[str] | None,
 ) -> None:
     """Validate inputs before translation."""
     if X.ndim != 2:
         raise ValueError(f"X must be a 2D array, got {X.ndim}D.")
     if idx < 0 or idx >= X.shape[0]:
-        raise ValueError(
-            f"idx={idx} is out of bounds for X with {X.shape[0]} rows."
-        )
+        raise ValueError(f"idx={idx} is out of bounds for X with {X.shape[0]} rows.")
     if feature_names is not None and len(feature_names) != X.shape[1]:
-        raise ValueError(
-            f"feature_names has {len(feature_names)} entries but X has {X.shape[1]} columns."
-        )
+        raise ValueError(f"feature_names has {len(feature_names)} entries but X has {X.shape[1]} columns.")
 
 
 def explain(
@@ -110,11 +110,13 @@ def explain(
     all_drivers = translator.extract_drivers(model, X, idx, feature_names)
     positive_drivers = sorted(
         [d for d in all_drivers if d.direction == "positive"],
-        key=lambda d: d.impact, reverse=True,
+        key=lambda d: d.impact,
+        reverse=True,
     )
     negative_drivers = sorted(
         [d for d in all_drivers if d.direction == "negative"],
-        key=lambda d: d.impact, reverse=True,
+        key=lambda d: d.impact,
+        reverse=True,
     )
 
     if top_k is not None:
@@ -123,9 +125,7 @@ def explain(
 
     # 4. Counterfactuals — only compute for unfavorable predictions
     if probability >= threshold:
-        counterfactuals = translator.compute_counterfactuals(
-            model, X, idx, threshold, feature_names
-        )
+        counterfactuals = translator.compute_counterfactuals(model, X, idx, threshold, feature_names)
     else:
         counterfactuals = []
 
@@ -163,9 +163,12 @@ def explain_risk(
     interpretation to produce credit-specific output.
     """
     report = explain(
-        model, X, idx=idx, feature_names=feature_names,
-        threshold=threshold, top_k=top_k,
+        model,
+        X,
+        idx=idx,
+        feature_names=feature_names,
+        threshold=threshold,
+        top_k=top_k,
     )
     domain = CreditRiskDomain()
     return domain.interpret(report)
-

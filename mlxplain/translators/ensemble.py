@@ -21,9 +21,7 @@ class EnsembleTranslator(BaseTranslator):
             warnings.simplefilter("ignore", UserWarning)
             return float(model.predict_proba(instance)[0, 1])
 
-    def extract_drivers(
-        self, model, X: np.ndarray, idx: int, feature_names: list[str]
-    ) -> list[FeatureDriver]:
+    def extract_drivers(self, model, X: np.ndarray, idx: int, feature_names: list[str]) -> list[FeatureDriver]:
         instance = X[idx]
 
         with warnings.catch_warnings():
@@ -39,7 +37,9 @@ class EnsembleTranslator(BaseTranslator):
                     indices = np.linspace(0, len(bg_data) - 1, 100, dtype=int)
                     bg_data = bg_data[indices]
 
-                predict_fn = lambda x: model.predict_proba(x)[:, 1]
+                def predict_fn(x):
+                    return model.predict_proba(x)[:, 1]
+
                 explainer = shap.Explainer(predict_fn, bg_data)
                 shap_explanation = explainer(instance.reshape(1, -1))
                 shap_values = shap_explanation.values
@@ -58,10 +58,7 @@ class EnsembleTranslator(BaseTranslator):
         # Extract 1D array of contributions for this instance
         if len(raw_values.shape) == 3:
             # Shape: (n_samples, n_features, n_classes)
-            if raw_values.shape[2] > 1:
-                values = raw_values[0, :, 1]
-            else:
-                values = raw_values[0, :, 0]
+            values = raw_values[0, :, 1] if raw_values.shape[2] > 1 else raw_values[0, :, 0]
         elif len(raw_values.shape) == 2:
             # Shape: (n_samples, n_features)
             values = raw_values[0]
@@ -69,7 +66,7 @@ class EnsembleTranslator(BaseTranslator):
             values = raw_values
 
         drivers = []
-        for name, val, sv in zip(feature_names, instance, values):
+        for name, val, sv in zip(feature_names, instance, values, strict=False):
             drivers.append(
                 FeatureDriver(
                     feature=name,
@@ -90,6 +87,4 @@ class EnsembleTranslator(BaseTranslator):
         threshold: float,
         feature_names: list[str],
     ) -> list[Counterfactual]:
-        return compute_counterfactuals_perturbation(
-            model, X[idx], threshold, feature_names
-        )
+        return compute_counterfactuals_perturbation(model, X[idx], threshold, feature_names)

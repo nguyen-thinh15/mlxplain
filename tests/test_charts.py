@@ -1,7 +1,5 @@
 """Tests for visualization charts — each chart returns a valid matplotlib Figure."""
 
-import numpy as np
-import pytest
 from matplotlib.figure import Figure
 
 from mlxplain.core.report import Counterfactual, ExplanationReport, FeatureDriver
@@ -61,4 +59,3 @@ def test_plot_report():
     assert "drivers" in figures
     assert "counterfactuals" in figures
     assert all(isinstance(f, Figure) for f in figures.values())
-

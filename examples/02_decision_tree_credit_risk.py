@@ -12,8 +12,10 @@ This example:
 from __future__ import annotations
 
 import os
+
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
+
 from mlxplain import explain_risk
 
 
@@ -36,11 +38,7 @@ def main():
     # High DTI or low credit score or low months employed -> high probability of default (y=1)
     y = np.zeros(n_samples, dtype=int)
     for i in range(n_samples):
-        if dti[i] > 42:
-            y[i] = 1
-        elif credit_score[i] < 630:
-            y[i] = 1
-        elif months_employed[i] < 12 and income[i] < 50:
+        if dti[i] > 42 or credit_score[i] < 630 or (months_employed[i] < 12 and income[i] < 50):
             y[i] = 1
 
     # 2. Train a Decision Tree model
@@ -53,7 +51,7 @@ def main():
     high_risk_idx = declined_indices[0]
     applicant_values = X[high_risk_idx]
     print(f"\nSelected declined applicant at index {high_risk_idx}:")
-    for name, val in zip(feature_names, applicant_values):
+    for name, val in zip(feature_names, applicant_values, strict=False):
         print(f"  {name}: {val:.1f}")
 
     # 4. Generate credit risk explanation report
@@ -82,7 +80,7 @@ def main():
     report.figures["drivers"].savefig(os.path.join(output_dir, "tree_drivers.png"), dpi=150)
     report.figures["counterfactuals"].savefig(os.path.join(output_dir, "tree_counterfactuals.png"), dpi=150)
 
-    print(f"Success! Matplotlib figures successfully saved to:")
+    print("Success! Matplotlib figures successfully saved to:")
     print(f"  - {os.path.join(output_dir, 'tree_gauge.png')}")
     print(f"  - {os.path.join(output_dir, 'tree_drivers.png')}")
     print(f"  - {os.path.join(output_dir, 'tree_counterfactuals.png')}")

@@ -225,5 +225,5 @@ Set up the project locally for development:
    uv run pytest tests/ -v
    ```
 
-**Core Dependencies:** `numpy`, `scikit-learn`, `shap`, `matplotlib`  
+**Core Dependencies:** `numpy`, `scikit-learn`, `shap`, `matplotlib`
 **Optional Dependencies (for ensembles):** `xgboost`, `lightgbm`
