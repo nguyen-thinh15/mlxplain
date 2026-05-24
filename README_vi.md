@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/hero_banner.png" alt="mlxplain — Trí tuệ Nhân tạo Giải thích được cho các Quyết định Tín dụng" width="700"/>
+  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/hero_banner.png" alt="mlxplain — Trí tuệ Nhân tạo Giải thích được cho các Quyết định Tín dụng" width="700"/>
 </p>
 
 <h1 align="center">mlxplain</h1>
@@ -21,7 +21,7 @@
 **Chỉ một lệnh gọi hàm. Kết quả đầu ra chuyên nghiệp đa chiều.** Không cần cấu hình phức tạp.
 
 <p align="center">
-  <img src="docs/images/workflow_diagram.png" alt="Quy trình hoạt động mlxplain: Huấn luyện → Giải thích → Kết quả" width="650"/>
+  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/workflow_diagram.png" alt="Quy trình hoạt động mlxplain: Huấn luyện → Giải thích → Kết quả" width="650"/>
 </p>
 
 ### 💻 Điểm nổi bật: Hồ sơ Rủi ro HTML Cao cấp
@@ -39,9 +39,9 @@ Mỗi cuộc gọi tới `explain_risk()` đều tạo ra ba biểu đồ `matpl
     <td align="center"><strong>Thanh phản thực tế</strong><br/><em>Những gì cần phải thay đổi?</em></td>
   </tr>
   <tr>
-    <td><img src="docs/images/logistic_gauge.png" alt="Thước đo Xác suất" width="350"/></td>
-    <td><img src="docs/images/logistic_drivers.png" alt="Nhân tố tác động" width="350"/></td>
-    <td><img src="docs/images/logistic_counterfactuals.png" alt="Thay đổi Phản thực tế" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_gauge.png" alt="Thước đo Xác suất" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.png" alt="Nhân tố tác động" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_counterfactuals.png" alt="Thay đổi Phản thực tế" width="350"/></td>
   </tr>
 </table>
 
@@ -139,9 +139,9 @@ report.figures["counterfactuals"].savefig("counterfactuals.svg")
   </tr>
   <tr>
     <td><strong>Nhân tố tác động</strong></td>
-    <td><img src="docs/images/logistic_drivers.png" alt="Nhân tố hồi quy logistic" width="280"/></td>
-    <td><img src="docs/images/tree_drivers.png" alt="Nhân tố cây quyết định" width="280"/></td>
-    <td><img src="docs/images/ensemble_drivers.png" alt="Nhân tố Ensemble" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.png" alt="Nhân tố hồi quy logistic" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/tree_drivers.png" alt="Nhân tố cây quyết định" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/ensemble_drivers.png" alt="Nhân tố Ensemble" width="280"/></td>
   </tr>
 </table>
 

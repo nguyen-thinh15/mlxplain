@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/hero_banner.png" alt="mlxplain — Explainable AI for Credit Decisions" width="700"/>
+  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/hero_banner.png" alt="mlxplain — Explainable AI for Credit Decisions" width="700"/>
 </p>
 
 <h1 align="center">mlxplain</h1>
@@ -21,7 +21,7 @@
 **One function call. Multi-pillar professional outputs.** No complex configuration needed.
 
 <p align="center">
-  <img src="docs/images/workflow_diagram.png" alt="mlxplain workflow: Train → Explain → Results" width="650"/>
+  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/workflow_diagram.png" alt="mlxplain workflow: Train → Explain → Results" width="650"/>
 </p>
 
 ### 💻 Standing Out: Premium HTML Risk Dossier
@@ -38,9 +38,9 @@ Every call to `explain_risk()` produces three publication-ready `matplotlib` fig
     <td align="center"><strong>Counterfactual Bars</strong><br/><em>What needs to change?</em></td>
   </tr>
   <tr>
-    <td><img src="docs/images/logistic_gauge.png" alt="Probability Gauge" width="350"/></td>
-    <td><img src="docs/images/logistic_drivers.png" alt="Feature Drivers" width="350"/></td>
-    <td><img src="docs/images/logistic_counterfactuals.png" alt="Counterfactual Changes" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_gauge.png" alt="Probability Gauge" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.png" alt="Feature Drivers" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_counterfactuals.png" alt="Counterfactual Changes" width="350"/></td>
   </tr>
 </table>
 
@@ -138,9 +138,9 @@ report.figures["counterfactuals"].savefig("counterfactuals.svg")
   </tr>
   <tr>
     <td><strong>Feature Drivers</strong></td>
-    <td><img src="docs/images/logistic_drivers.png" alt="Logistic Drivers" width="280"/></td>
-    <td><img src="docs/images/tree_drivers.png" alt="Tree Drivers" width="280"/></td>
-    <td><img src="docs/images/ensemble_drivers.png" alt="Ensemble Drivers" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.png" alt="Logistic Drivers" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/tree_drivers.png" alt="Tree Drivers" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/ensemble_drivers.png" alt="Ensemble Drivers" width="280"/></td>
   </tr>
 </table>
 
