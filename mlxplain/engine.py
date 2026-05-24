@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from sklearn.ensemble import IsolationForest, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -11,7 +13,6 @@ from mlxplain.core.report import ExplanationReport
 from mlxplain.core.threshold import classify
 from mlxplain.domains.credit_risk.interpreter import CreditRiskDomain
 from mlxplain.translators.base import BaseTranslator
-from mlxplain.translators.ensemble import EnsembleTranslator
 from mlxplain.translators.logistic import LogisticTranslator
 from mlxplain.translators.tree import TreeTranslator
 from mlxplain.visualizations.charts import plot_report
@@ -35,6 +36,8 @@ def _detect_translator(model, language: str = "en") -> BaseTranslator:
         import xgboost
 
         if isinstance(model, xgboost.XGBClassifier):
+            from mlxplain.translators.ensemble import EnsembleTranslator
+
             return EnsembleTranslator(language=language)
     except ImportError:
         pass
@@ -43,6 +46,8 @@ def _detect_translator(model, language: str = "en") -> BaseTranslator:
         import lightgbm
 
         if isinstance(model, lightgbm.LGBMClassifier):
+            from mlxplain.translators.ensemble import EnsembleTranslator
+
             return EnsembleTranslator(language=language)
     except ImportError:
         pass
@@ -82,19 +87,27 @@ def explain(
     negative_label: str = "Negative",
     top_k: int | None = None,
     language: str = "en",
+    immutable_features: list[str] | None = None,
+    feature_bounds: dict[str, tuple[float, float]] | None = None,
+    target_class: Any | None = None,
 ) -> ExplanationReport:
-    """Generic domain-agnostic explanation for any supported binary classifier.
+    """Generic domain-agnostic explanation for any supported binary or multi-class classifier.
 
     Args:
-        model: A fitted scikit-learn-compatible binary classifier.
+        model: A fitted scikit-learn-compatible classifier.
         X: Feature matrix (2d array).
         idx: Index of the instance to explain.
         feature_names: Names for each feature column. Defaults to f0, f1, ...
-        threshold: Decision boundary probability.
+        threshold: Decision boundary probability. For binary, predictions with probability >= threshold
+            receive `positive_label`; below receive `negative_label`. For multi-class, ignored (warns if not 0.5).
         positive_label: Label for probability >= threshold.
         negative_label: Label for probability < threshold.
-        top_k: If set, keep only the top-k drivers per direction (by impact).
+        top_k: If set, keep only the top-k drivers per direction (by impact). Sorted by predicted class impact.
         language: Language for the output driver directions ("en" or "vi").
+        immutable_features: List of feature names that cannot be changed.
+        feature_bounds: Dictionary mapping feature name to (lower_bound, upper_bound) tuple.
+        target_class: For multi-class, the target class to transition to in counterfactuals.
+                      If None, defaults to the runner-up class.
 
     Returns:
         ExplanationReport with prediction, drivers, counterfactuals, and charts.
@@ -105,6 +118,17 @@ def explain(
     n_features = X.shape[1]
     if feature_names is None:
         feature_names = [f"f{i}" for i in range(n_features)]
+
+    is_multiclass = hasattr(model, "classes_") and len(model.classes_) > 2
+
+    if is_multiclass and threshold != 0.5:
+        import warnings
+
+        warnings.warn(
+            "Threshold is not applicable to multi-class classification and will be ignored.",
+            UserWarning,
+            stacklevel=2,
+        )
 
     if language == "vi":
         if positive_label == "Positive":
@@ -119,13 +143,17 @@ def explain(
 
     translator = _detect_translator(model, language=language)
 
-    # 1. Probability
-    probability = translator.get_probability(model, X, idx)
+    # 1. Probability & Classification
+    if is_multiclass:
+        probs_dict = translator.get_probabilities(model, X, idx)
+        prediction = max(probs_dict, key=probs_dict.get)
+        probability = probs_dict[prediction]
+    else:
+        probs_dict = None
+        probability = translator.get_probability(model, X, idx)
+        prediction = classify(probability, threshold, positive_label, negative_label)
 
-    # 2. Classification
-    prediction = classify(probability, threshold, positive_label, negative_label)
-
-    # 3. Feature drivers
+    # 2. Feature drivers
     all_drivers = translator.extract_drivers(model, X, idx, feature_names)
     positive_drivers = sorted(
         [d for d in all_drivers if d.direction in ("positive", "tích cực")],
@@ -142,13 +170,41 @@ def explain(
         positive_drivers = positive_drivers[:top_k]
         negative_drivers = negative_drivers[:top_k]
 
-    # 4. Counterfactuals — only compute for unfavorable predictions
-    if probability >= threshold:
-        counterfactuals = translator.compute_counterfactuals(model, X, idx, threshold, feature_names)
-    else:
-        counterfactuals = []
+    # 3. Counterfactuals — only compute for unfavorable predictions/states
+    if is_multiclass:
+        if target_class is None:
+            # Find runner-up (second highest probability class)
+            sorted_probs = sorted(probs_dict.items(), key=lambda item: item[1])
+            target_class = sorted_probs[-2][0]
 
-    # 5. Build report
+        if str(prediction) != str(target_class):
+            counterfactuals = translator.compute_counterfactuals(
+                model,
+                X,
+                idx,
+                threshold,
+                feature_names,
+                immutable_features=immutable_features,
+                feature_bounds=feature_bounds,
+                target_class=target_class,
+            )
+        else:
+            counterfactuals = []
+    else:
+        if probability >= threshold:
+            counterfactuals = translator.compute_counterfactuals(
+                model,
+                X,
+                idx,
+                threshold,
+                feature_names,
+                immutable_features=immutable_features,
+                feature_bounds=feature_bounds,
+            )
+        else:
+            counterfactuals = []
+
+    # 4. Build report
     report = ExplanationReport(
         prediction=prediction,
         probability=probability,
@@ -156,14 +212,20 @@ def explain(
         positive_drivers=positive_drivers,
         negative_drivers=negative_drivers,
         counterfactuals=counterfactuals,
+        probabilities=probs_dict,
     )
 
-    # 6. Visualizations
+    # 5. Visualizations
     report.domain_output = {
         "positive_label": positive_label,
         "negative_label": negative_label,
         "language": language,
     }
+    if is_multiclass:
+        report.domain_output["classes"] = [str(c) for c in model.classes_]
+        if target_class is not None:
+            report.domain_output["target_class"] = str(target_class)
+
     report.figures = plot_report(report)
 
     return report
@@ -177,6 +239,9 @@ def explain_risk(
     threshold: float = 0.5,
     top_k: int | None = None,
     language: str = "en",
+    immutable_features: list[str] | None = None,
+    feature_bounds: dict[str, tuple[float, float]] | None = None,
+    target_class: Any | None = None,
 ) -> ExplanationReport:
     """Credit risk convenience wrapper.
 
@@ -191,8 +256,13 @@ def explain_risk(
         threshold=threshold,
         top_k=top_k,
         language=language,
+        immutable_features=immutable_features,
+        feature_bounds=feature_bounds,
+        target_class=target_class,
     )
     domain = CreditRiskDomain()
+    if hasattr(model, "classes_") and len(model.classes_) > 2:
+        return domain.interpret_multiclass(report)
     return domain.interpret(report)
 
 

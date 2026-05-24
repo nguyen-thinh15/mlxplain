@@ -1,0 +1,276 @@
+{
+  "logistic_idx0": {
+    "prediction": "Negative",
+    "probability": 0.2025909397326861,
+    "threshold": 0.5,
+    "positive_drivers": [
+      {
+        "feature": "income",
+        "value": 0.4967141530112327,
+        "impact": 0.7386391055595766,
+        "direction": "positive"
+      }
+    ],
+    "negative_drivers": [
+      {
+        "feature": "debt",
+        "value": 0.6476885381006925,
+        "impact": 1.4161626592123746,
+        "direction": "negative"
+      },
+      {
+        "feature": "tenure",
+        "value": -0.13826430117118466,
+        "impact": 0.35650106223138495,
+        "direction": "negative"
+      }
+    ],
+    "counterfactuals": []
+  },
+  "logistic_idx1": {
+    "prediction": "Positive",
+    "probability": 0.8625773910176769,
+    "threshold": 0.5,
+    "positive_drivers": [
+      {
+        "feature": "income",
+        "value": 1.5230298564080254,
+        "impact": 2.2648225424176993,
+        "direction": "positive"
+      },
+      {
+        "feature": "debt",
+        "value": -0.23413695694918055,
+        "impact": 0.5119374453427437,
+        "direction": "positive"
+      }
+    ],
+    "negative_drivers": [
+      {
+        "feature": "tenure",
+        "value": -0.23415337472333597,
+        "impact": 0.6037417186275833,
+        "direction": "negative"
+      }
+    ],
+    "counterfactuals": [
+      {
+        "feature": "tenure",
+        "current_value": -0.23415337472333597,
+        "target_value": -0.9465571751720878,
+        "change_needed": -0.7124038004487518
+      },
+      {
+        "feature": "debt",
+        "current_value": -0.23413695694918055,
+        "target_value": 0.6059612650790688,
+        "change_needed": 0.8400982220282494
+      },
+      {
+        "feature": "income",
+        "current_value": 1.5230298564080254,
+        "target_value": 0.28779018580247295,
+        "change_needed": -1.2352396706055524
+      }
+    ]
+  },
+  "tree_idx0": {
+    "prediction": "Negative",
+    "probability": 0.0,
+    "threshold": 0.5,
+    "positive_drivers": [],
+    "negative_drivers": [
+      {
+        "feature": "tenure",
+        "value": -0.13826430117118466,
+        "impact": 0.275,
+        "direction": "negative"
+      },
+      {
+        "feature": "debt",
+        "value": 0.6476885381006925,
+        "impact": 0.125,
+        "direction": "negative"
+      }
+    ],
+    "counterfactuals": []
+  },
+  "tree_idx1": {
+    "prediction": "Positive",
+    "probability": 0.7,
+    "threshold": 0.5,
+    "positive_drivers": [
+      {
+        "feature": "debt",
+        "value": -0.23413695694918055,
+        "impact": 0.3125,
+        "direction": "positive"
+      }
+    ],
+    "negative_drivers": [
+      {
+        "feature": "tenure",
+        "value": -0.23415337472333597,
+        "impact": 0.006250000000000033,
+        "direction": "negative"
+      }
+    ],
+    "counterfactuals": [
+      {
+        "feature": "debt",
+        "current_value": -0.23413695694918055,
+        "target_value": -0.21413695694918056,
+        "change_needed": 0.02
+      },
+      {
+        "feature": "tenure",
+        "current_value": -0.23415337472333597,
+        "target_value": -1.034153374723336,
+        "change_needed": -0.8
+      }
+    ]
+  },
+  "forest_idx0": {
+    "prediction": "Negative",
+    "probability": 0.05001420858198352,
+    "threshold": 0.5,
+    "positive_drivers": [],
+    "negative_drivers": [
+      {
+        "feature": "tenure",
+        "value": -0.13826430117118466,
+        "impact": 0.12627477170505658,
+        "direction": "negative"
+      },
+      {
+        "feature": "debt",
+        "value": 0.6476885381006925,
+        "impact": 0.12097711393857437,
+        "direction": "negative"
+      },
+      {
+        "feature": "income",
+        "value": 0.4967141530112327,
+        "impact": 0.01855072463768115,
+        "direction": "negative"
+      }
+    ],
+    "counterfactuals": []
+  },
+  "forest_idx1": {
+    "prediction": "Positive",
+    "probability": 0.5990338164251207,
+    "threshold": 0.5,
+    "positive_drivers": [
+      {
+        "feature": "income",
+        "value": 1.5230298564080254,
+        "impact": 0.21333333333333335,
+        "direction": "positive"
+      },
+      {
+        "feature": "debt",
+        "value": -0.23413695694918055,
+        "impact": 0.09888888888888887,
+        "direction": "positive"
+      }
+    ],
+    "negative_drivers": [
+      {
+        "feature": "tenure",
+        "value": -0.23415337472333597,
+        "impact": 0.11318840579710143,
+        "direction": "negative"
+      }
+    ],
+    "counterfactuals": [
+      {
+        "feature": "income",
+        "current_value": 1.5230298564080254,
+        "target_value": 1.431648065023544,
+        "change_needed": -0.09138179138448152
+      },
+      {
+        "feature": "debt",
+        "current_value": -0.23413695694918055,
+        "target_value": 0.04586304305081948,
+        "change_needed": 0.28
+      }
+    ]
+  },
+  "ensemble_idx0": {
+    "prediction": "Negative",
+    "probability": 0.170279398560524,
+    "threshold": 0.5,
+    "positive_drivers": [
+      {
+        "feature": "income",
+        "value": 0.4967141530112327,
+        "impact": 0.004505678762992155,
+        "direction": "positive"
+      }
+    ],
+    "negative_drivers": [
+      {
+        "feature": "debt",
+        "value": 0.6476885381006925,
+        "impact": 0.13548945213357608,
+        "direction": "negative"
+      },
+      {
+        "feature": "tenure",
+        "value": -0.13826430117118466,
+        "impact": 0.10199888745943701,
+        "direction": "negative"
+      }
+    ],
+    "counterfactuals": []
+  },
+  "ensemble_idx1": {
+    "prediction": "Positive",
+    "probability": 0.5904624462127686,
+    "threshold": 0.5,
+    "positive_drivers": [
+      {
+        "feature": "debt",
+        "value": -0.23413695694918055,
+        "impact": 0.1662747614582379,
+        "direction": "positive"
+      },
+      {
+        "feature": "income",
+        "value": 1.5230298564080254,
+        "impact": 0.06400053371985755,
+        "direction": "positive"
+      }
+    ],
+    "negative_drivers": [
+      {
+        "feature": "tenure",
+        "value": -0.23415337472333597,
+        "impact": 0.04307490835587183,
+        "direction": "negative"
+      }
+    ],
+    "counterfactuals": [
+      {
+        "feature": "debt",
+        "current_value": -0.23413695694918055,
+        "target_value": -0.21413695694918056,
+        "change_needed": 0.02
+      },
+      {
+        "feature": "income",
+        "current_value": 1.5230298564080254,
+        "target_value": 1.431648065023544,
+        "change_needed": -0.09138179138448152
+      },
+      {
+        "feature": "tenure",
+        "current_value": -0.23415337472333597,
+        "target_value": -0.614153374723336,
+        "change_needed": -0.38
+      }
+    ]
+  }
+}

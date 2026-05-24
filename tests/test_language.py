@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import importlib.util
+
 import numpy as np
 import pytest
 from sklearn.ensemble import RandomForestClassifier
@@ -9,9 +11,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 
 from mlxplain import explain, explain_risk
-from mlxplain.translators.ensemble import EnsembleTranslator
 from mlxplain.translators.logistic import LogisticTranslator
 from mlxplain.translators.tree import TreeTranslator
+
+has_shap = importlib.util.find_spec("shap") is not None
 
 
 @pytest.fixture
@@ -41,10 +44,13 @@ def test_translators_vietnamese_directions(sample_data):
     assert all(d.direction in ("tích cực", "tiêu cực") for d in drivers_dt)
 
     # 3. Ensemble (model-agnostic fallback via RF)
-    model_rf = RandomForestClassifier(n_estimators=3, random_state=42).fit(X, y)
-    trans_rf = EnsembleTranslator(language="vi")
-    drivers_rf = trans_rf.extract_drivers(model_rf, X, 0, names)
-    assert all(d.direction in ("tích cực", "tiêu cực") for d in drivers_rf)
+    if has_shap:
+        from mlxplain.translators.ensemble import EnsembleTranslator
+
+        model_rf = RandomForestClassifier(n_estimators=3, random_state=42).fit(X, y)
+        trans_rf = EnsembleTranslator(language="vi")
+        drivers_rf = trans_rf.extract_drivers(model_rf, X, 0, names)
+        assert all(d.direction in ("tích cực", "tiêu cực") for d in drivers_rf)
 
 
 def test_explain_vietnamese_orchestration(sample_data):
@@ -76,6 +82,29 @@ def test_explain_risk_vietnamese_memo(sample_data):
 
     if "YẾU TỐ RỦI RO (RISK FACTORS):" in memo:
         assert "mức độ ảnh hưởng:" in memo
+        assert "tổng mức rủi ro" in memo
 
     if "PHƯƠNG ÁN KHẮC PHỤC" in memo:
         assert "tăng từ" in memo or "giảm từ" in memo
+
+
+def test_multiclass_vietnamese_localization():
+    import numpy as np
+    from sklearn.linear_model import LogisticRegression
+
+    from mlxplain import explain_risk
+
+    rng = np.random.RandomState(42)
+    X = rng.randn(100, 3)
+    score = X[:, 0] * 1.5 + X[:, 1] * 1.0 - X[:, 2] * 2.0
+    y = np.zeros(100, dtype=object)
+    y[score > 0.5] = "A"
+    y[(score >= -0.5) & (score <= 0.5)] = "B"
+    y[score < -0.5] = "C"
+
+    model = LogisticRegression(random_state=42).fit(X, y.astype(str))
+    report = explain_risk(model, X, idx=0, feature_names=["income", "tenure", "debt"], target_class="A", language="vi")
+
+    assert "QUYẾT ĐỊNH PHÂN HẠNG TÍN DỤNG: Hạng" in report.summary
+    assert "Xác suất của Hạng" in report.summary
+    assert "PHƯƠNG ÁN KHẮC PHỤC ĐỂ ĐẠT Hạng A" in report.summary

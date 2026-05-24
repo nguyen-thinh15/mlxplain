@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/hero_banner.png" alt="mlxplain — Trí tuệ Nhân tạo Giải thích được cho các Quyết định Tín dụng" width="700"/>
+  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/hero_banner.jpg" alt="mlxplain — Trí tuệ Nhân tạo Giải thích được cho các Quyết định Tín dụng" width="700"/>
 </p>
 
 <h1 align="center">mlxplain</h1>
@@ -25,7 +25,7 @@
 **Chỉ một lệnh gọi hàm. Kết quả đầu ra chuyên nghiệp đa chiều.** Không cần cấu hình phức tạp.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/workflow_diagram.png" alt="Quy trình hoạt động mlxplain: Huấn luyện → Giải thích → Kết quả" width="650"/>
+  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/workflow_diagram.jpg" alt="Quy trình hoạt động mlxplain: Huấn luyện → Giải thích → Kết quả" width="650"/>
 </p>
 
 ### 💻 Điểm nổi bật: Hồ sơ Rủi ro HTML Cao cấp
@@ -43,9 +43,9 @@ Mỗi cuộc gọi tới `explain_risk()` đều tạo ra ba biểu đồ `matpl
     <td align="center"><strong>Thanh phản thực tế</strong><br/><em>Những gì cần phải thay đổi?</em></td>
   </tr>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_gauge.png" alt="Thước đo Xác suất" width="350"/></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.png" alt="Nhân tố tác động" width="350"/></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_counterfactuals.png" alt="Thay đổi Phản thực tế" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_gauge.jpg" alt="Thước đo Xác suất" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.jpg" alt="Nhân tố tác động" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_counterfactuals.jpg" alt="Thay đổi Phản thực tế" width="350"/></td>
   </tr>
 </table>
 
@@ -91,6 +91,17 @@ PHƯƠNG ÁN KHẮC PHỤC (CURE PATHS - thay đổi cần thiết để đượ
 ## ⚡ Khởi đầu nhanh (4 Dòng mã)
 
 ```python
+from mlxplain import explain_risk
+
+report = explain_risk(model, X_train, idx=10, feature_names=FEATURES, threshold=0.45)
+print(report.summary)
+report.figures["gauge"].savefig("gauge.svg")
+```
+
+### 💡 Ví dụ tích hợp đầy đủ
+Nếu bạn muốn xem một mã nguồn hoàn chỉnh có sẵn bao gồm huấn luyện mô hình và xuất đầy đủ các đồ thị chẩn đoán:
+
+```python
 from sklearn.ensemble import RandomForestClassifier
 from mlxplain import explain_risk
 
@@ -119,6 +130,23 @@ report.figures["counterfactuals"].savefig("counterfactuals.svg")
 
 ---
 
+## ⚙️ Quy ước & Quy chuẩn (Conventions & Policy)
+
+### Cơ chế Ngưỡng & Chiều tác động (Threshold & Direction Semantics)
+- **Quy tắc Quyết định:** Dự đoán có `probability >= threshold` sẽ được gán nhãn tích cực `positive_label`; dự đoán có `probability < threshold` sẽ được gán nhãn tiêu cực `negative_label`.
+- **Chiều tác động đặc trưng:** Một **positive driver** đẩy dự đoán về phía `positive_label` (ví dụ: tăng rủi ro / hành vi bất thường / gán phân cụm). Một **negative driver** giảm thiểu / đẩy dự đoán về phía `negative_label`.
+  - *Credit Risk:* `positive_label` = **Declined** (Từ chối), `negative_label` = **Approved** (Duyệt). Một positive driver có nghĩa là nó *làm tăng* rủi ro nợ xấu (đẩy về phía bị từ chối).
+  - *Fraud Triage:* `positive_label` = **Fraud/Review** (Gian lận/Đánh giá), `negative_label` = **Clean** (Sạch).
+  - *Anomaly Detection:* `positive_label` = **Anomaly** (Bất thường), `negative_label` = **Normal** (Bình thường).
+
+### Quy định Đặc trưng Phân loại (Categorical Feature Policy)
+- **Mặc định Liên tục:** Hiện tại, tất cả đặc trưng được xử lý như các biến liên tục (continuous features).
+- **Xử lý Thượng nguồn:** Hãy thực hiện mã hóa one-hot (one-hot encode) hoặc mã hóa thứ tự (ordinal encode) các đặc trưng phân loại trước khi gọi `explain()`.
+- **Lộ trình phát triển:** Hỗ trợ hoán đổi phản thực tế phân loại rời rạc (discrete categorical counterfactual swaps) và trực quan hóa tương ứng sẽ được phát hành trong phiên bản `v0.2.0`.
+
+---
+
+
 ## 💻 Các mô hình được hỗ trợ & Bộ dịch XAI
 
 **mlxplain** hoạt động tương thích với các họ mô hình phổ biến nhất hiện nay mà không cần bất kỳ thay đổi cấu hình nào:
@@ -143,9 +171,9 @@ report.figures["counterfactuals"].savefig("counterfactuals.svg")
   </tr>
   <tr>
     <td><strong>Nhân tố tác động</strong></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.png" alt="Nhân tố hồi quy logistic" width="280"/></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/tree_drivers.png" alt="Nhân tố cây quyết định" width="280"/></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/ensemble_drivers.png" alt="Nhân tố Ensemble" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.jpg" alt="Nhân tố hồi quy logistic" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/tree_drivers.jpg" alt="Nhân tố cây quyết định" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/ensemble_drivers.jpg" alt="Nhân tố Ensemble" width="280"/></td>
   </tr>
 </table>
 
@@ -190,6 +218,67 @@ Bộ giải thích miền rủi ro tín dụng ánh xạ các khái niệm toán
 | Nhân tố tác động Tích cực | **Risk Factors** (Yêu tố rủi ro / Điểm yếu) |
 | Nhân tố tác động Tiêu cực | **Mitigating Factors** (Yếu tố giảm thiểu rủi ro / Điểm mạnh) |
 | Phản thực tế | **Cure Paths** (Phương án khắc phục để được duyệt) |
+
+---
+
+## 🖥️ Giao diện Dòng lệnh (CLI)
+
+**mlxplain** cung cấp một công cụ dòng lệnh (CLI) `mlxplain` nâng cao dựa trên thư viện chuẩn của Python để tạo báo cáo giải thích trực quan, in bảng điều khiển có màu trên terminal và xuất báo cáo mà không cần viết mã nguồn Python!
+
+### Cú pháp Sử dụng
+```bash
+mlxplain explain --model model.pkl --data features.csv --idx 0 [options]
+```
+
+### Các Tùy chọn & Ánh xạ Tham số
+* `--model`: Đường dẫn đến tệp mô hình đã huấn luyện (được lưu bằng `pickle` hoặc `joblib`).
+  * *Cảnh báo bảo mật*: In ra cảnh báo bảo mật rõ ràng trên terminal về việc chạy mã tùy ý khi tải các tệp không đáng tin cậy.
+* `--data`: Đường dẫn đến tệp dữ liệu CSV chứa các dòng đặc trưng của bạn. Các cột sẽ được tự động phân tích và tiêu đề cột (headers) sẽ được tự động nhận dạng!
+* `--idx`: Chỉ mục dòng dữ liệu (bắt đầu từ 0) cần giải thích (mặc định: `0`).
+* `--threshold`: Ngưỡng xác suất phân loại quyết định (mặc định: `0.5`).
+* `--output`: Đường dẫn tùy chọn để xuất kết quả (HTML hoặc JSON).
+* `--format`: Định dạng đầu ra, lựa chọn từ:
+  * `text`: Bảng điều khiển màu ANSI tuyệt đẹp trên terminal, hiển thị thanh tiến trình quyết định, thang đo tác động đặc trưng phân màu và danh sách kiểm tra phản thực tế.
+  * `json`: Cấu trúc JSON máy đọc được chứa điểm số dự đoán, các đặc trưng tác động được sắp xếp và đường khắc phục.
+  * `memo`: Văn bản thô của biên bản thẩm định/tóm tắt tín dụng đã bản địa hóa.
+  * `html`: Báo cáo HTML đơn tệp chất lượng cao (High-DPI).
+* `--domain`: Định tuyến nghiệp vụ miền rủi ro, ví dụ `credit_risk` để áp dụng ánh xạ thuật ngữ thẩm định tín dụng `explain_risk()`.
+* `--language`: Lựa chọn ngôn ngữ giải thích, chọn giữa `en` (Tiếng Anh) hoặc `vi` (Tiếng Việt).
+* `--immutable`: Danh sách tên các thuộc tính không thể thay đổi, cách nhau bằng dấu phẩy (ví dụ: `--immutable "Age,History"`).
+* `--bounds`: Các ràng buộc đặc trưng chính xác, truyền dưới dạng chuỗi JSON thô (ví dụ: `--bounds '{"Income": [10000, 50000]}'`) hoặc đường dẫn đến tệp JSON chứa cấu hình.
+
+---
+
+## 📊 Bảng điều khiển Tương tác & Hồ sơ HTML Cao cấp
+
+### 1. Bảng điều khiển Tương tác Plotly
+Ngoài các biểu đồ tĩnh matplotlib, bạn có thể tạo ra các biểu đồ tương tác Plotly tương ứng:
+* **Thước đo Tương tác**: Hiển thị ranh giới quyết định với các cung tròn và vạch chỉ chỉ báo động.
+* **Thác nước Nhân tố tác động**: Cho phép di chuột để kiểm tra biên độ đóng góp chính xác của từng thuộc tính.
+* **Thanh Phản thực tế**: Nhóm trực quan để dễ dàng so sánh giá trị hiện tại so với giá trị cần thiết để được duyệt.
+* **Bản đồ nhiệt Đa lớp**: Thang màu phân kỳ hiển thị mức độ tác động của đặc trưng trên tất cả các lớp một cách trực quan.
+
+Để tạo các biểu đồ tương tác Plotly này, chỉ cần gọi hàm:
+```python
+from mlxplain.visualizations.plotly_charts import plot_report_plotly
+
+# Trả về một từ điển chứa các đối tượng Biểu đồ Plotly: gauge, drivers, counterfactuals, heatmap
+plotly_figures = plot_report_plotly(report)
+```
+
+### 2. Báo cáo HTML Độc lập (`export_html`)
+Xuất toàn bộ báo cáo giải thích thành một tệp HTML chất lượng cao (High-DPI) tự chứa hoàn chỉnh, sẵn sàng để gửi email cho các nhà quản lý rủi ro hoặc thẩm định viên:
+* Nhúng tất cả các biểu đồ matplotlib trực tiếp dưới dạng chuỗi ảnh PNG mã hóa Base64 (đảm bảo tính di động tối đa).
+* Tùy chọn tích hợp các biểu đồ Plotly động bằng cách tải thư viện CDN một lần duy nhất ở phần đầu trang.
+* Thiết kế CSS đáp ứng (hỗ trợ cả giao diện Sáng/Tối theo tùy chọn hệ thống), các khối kính mờ hiển thị và phông chữ Google Outfit/Inter thanh lịch.
+* **Sẵn sàng để In**: Thiết kế tối ưu hóa cho chế độ xem in ấn CSS giúp xuất PDF trực tiếp từ chức năng in của trình duyệt ("Save as PDF") vô cùng sắc nét.
+
+```python
+from mlxplain.core.exporter import export_html
+
+# Xuất báo cáo trực tiếp thành một hồ sơ HTML kính mờ cao cấp độc lập
+export_html(report, "dossier.html", include_plotly=True)
+```
 
 ---
 
@@ -241,21 +330,51 @@ Tất cả các ví dụ sẽ lưu biểu đồ được tạo vào thư mục `
 
 ---
 
+## 🔠 Giải thích Mô hình Phân loại Đa lớp (Grades & Tiers)
+
+**mlxplain** cung cấp hỗ trợ gốc cho các mô hình phân loại đa lớp (multi-class), mở rộng các tính năng theo dõi tác động đặc trưng hợp nhất và tìm kiếm phương án khắc phục phản thực tế vượt ra ngoài các quyết định nhị phân đơn giản:
+
+* **Dự đoán Argmax & Đảo ngược Á quân Mặc định**: Tự động phát hiện các mô hình đa lớp, phân loại bằng phương pháp argmax xác suất tiêu chuẩn và tự động đặt mục tiêu phản thực tế thành **lớp á quân** (lớp thay thế có khả năng xảy ra cao thứ hai) nếu không có tham số `target_class` cụ thể nào được cung cấp.
+* **Biểu đồ Nhiệt & Biểu đồ Xác suất Cao cấp**: Trong chế độ đa lớp, hàm `plot_report()` sẽ tự động chuyển đổi thước đo nhị phân thành:
+  1. **Biểu đồ thanh Xác suất Lớp** làm nổi bật lớp được dự đoán.
+  2. **Biểu đồ nhiệt Tác động Đặc trưng trên mỗi Lớp** hiển thị phân tích trực quan đa chiều về đóng góp đặc trưng trên tất cả các lớp.
+* **Phản thực tế Đóng cho Mô hình Multinomial**: Phát triển công thức biến đổi logit multinomial chính xác để giải quyết quá trình chuyển dịch ranh giới quyết định $\Delta X_f = \frac{z_{c^*} - z_t}{W_{t, f} - W_{c^*, f}}$ với độ chính xác toán học tuyệt đối.
+* **Phân hạng Rủi ro Tín dụng & Biên bản Việt hóa**: Tương thích hoàn toàn với các phân hạng tín dụng nghiệp vụ (A/B/C), tự động tạo các biên bản phân hạng tín dụng tuân thủ quy chuẩn được bản địa hóa dưới thuật ngữ **"Hạng A/B/C"** trong tiếng Việt và **"Grade A/B/C"** trong tiếng Anh.
+
+---
+
 ## 📦 Cài đặt
 
 Dự án này tương thích hoàn toàn với [uv](https://github.com/astral-sh/uv) để quản lý gói nhanh như chớp.
 
 ### Dành cho người sử dụng
 
-Cài đặt `mlxplain` trực tiếp vào môi trường ảo của bạn:
+Cài đặt gói cơ bản trực tiếp vào môi trường ảo của bạn (các mô hình logistic và cây quyết định hoạt động sẵn sàng không cần cài đặt thêm):
 
 ```bash
-uv pip install mlxplain
+uv pip install mlxplain-xai
 # hoặc sử dụng pip tiêu chuẩn
-pip install mlxplain
+pip install mlxplain-xai
 ```
 
-Hoặc cài đặt các thư viện phụ thuộc bằng tệp `requirements.txt` có sẵn:
+#### Các tùy chọn mở rộng (XGBoost / LightGBM / IsolationForest)
+Để sử dụng các giải thích cho mô hình ensemble hoặc phát hiện bất thường không giám sát, hãy cài đặt kèm theo tùy chọn `shap`:
+
+```bash
+pip install mlxplain-xai[shap]
+```
+
+#### Giao diện Bảng điều khiển tương tác (Plotly)
+Để sản sinh các biểu đồ động tương tác Plotly cùng với matplotlib, hãy cài đặt kèm theo tùy chọn `plotly`:
+
+```bash
+pip install mlxplain-xai[plotly]
+```
+
+> [!NOTE]
+> **Nâng cấp từ bản 0.1.x?** Thư viện `shap` hiện đã được chuyển thành tùy chọn cài đặt bổ sung trong `v0.2.0` để tối ưu hóa thời gian tải thư viện ban đầu. Nếu mã nguồn của bạn sử dụng XGBoost, LightGBM hoặc IsolationForest, hãy chắc chắn cài đặt/nâng cấp bằng lệnh `pip install mlxplain-xai[shap]`. Chi tiết xem tại [CHANGELOG.md](file:///Users/thinhnguyen/Documents/GitHub/mlxplain/CHANGELOG.md).
+
+Hoặc cài đặt các thư viện phụ thuộc cho nhà phát triển bằng tệp `requirements.txt` có sẵn:
 
 ```bash
 pip install -r requirements.txt
@@ -282,5 +401,5 @@ Thiết lập dự án cục bộ để phát triển:
    uv run pytest tests/ -v
    ```
 
-**Các thư viện phụ thuộc chính:** `numpy`, `scikit-learn`, `shap`, `matplotlib`
-**Các thư viện phụ thuộc tùy chọn (cho mô hình ensemble):** `xgboost`, `lightgbm`
+**Các thư viện phụ thuộc chính:** `numpy`, `scikit-learn`, `matplotlib`
+**Các thư viện phụ thuộc tùy chọn:** `shap`, `xgboost`, `lightgbm` (cho mô hình ensemble), `plotly` (cho biểu đồ tương tác)

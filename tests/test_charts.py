@@ -59,3 +59,22 @@ def test_plot_report():
     assert "drivers" in figures
     assert "counterfactuals" in figures
     assert all(isinstance(f, Figure) for f in figures.values())
+
+
+def test_plot_probabilities_bar():
+    from mlxplain.visualizations.charts import plot_probabilities_bar
+
+    probs = {"Grade A": 0.2, "Grade B": 0.7, "Grade C": 0.1}
+    fig = plot_probabilities_bar(probs)
+    assert isinstance(fig, Figure)
+
+
+def test_plot_per_class_driver_heatmap():
+    from mlxplain.visualizations.charts import plot_per_class_driver_heatmap
+
+    drivers = [
+        FeatureDriver("income", 50.0, 0.4, "positive", {"A": 0.4, "B": -0.2, "C": -0.2}),
+        FeatureDriver("debt", 10.0, 0.3, "negative", {"A": -0.3, "B": 0.1, "C": 0.2}),
+    ]
+    fig = plot_per_class_driver_heatmap(drivers, ["A", "B", "C"])
+    assert isinstance(fig, Figure)

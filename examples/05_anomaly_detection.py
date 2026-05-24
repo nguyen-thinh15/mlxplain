@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """Example demonstrating mlxplain with an Isolation Forest model for anomaly detection.
 
-This example:
-1. Generates a synthetic dataset modeling server requests (with CPU, latency, and request rate).
-2. Trains a scikit-learn IsolationForest model.
-3. Selects a server request that represents a system anomaly/outlier.
-4. Generates an anomaly explanation report using the unified `explain()` API.
-5. Prints a clear explanation of what features drove the anomaly and what values would make it normal.
-6. Saves the generated visual charts (gauge, waterfall, counterfactuals) to the output folder.
+Business Scenario: Explaining system and server network anomalies (e.g. DDoS or load spikes) in IT infrastructure operations.
+mlxplain Capability: Unsupervised anomaly detection XAI via Isolation Forest score normalization, SHAP-based anomaly drivers, and perturbation counterfactuals to restore normal behavior.
+Expected Runtime: < 2 seconds.
+Required Dependencies: numpy, scikit-learn, matplotlib, shap, mlxplain.
 """
 
 from __future__ import annotations
@@ -19,8 +16,19 @@ from sklearn.ensemble import IsolationForest
 
 from mlxplain import explain
 
+# Try to import optional dependencies: shap is required for Isolation Forest SHAP values
+try:
+    import shap
+except ImportError:
+    shap = None
+
 
 def main():
+    if shap is None:
+        print("SHAP is not installed. To run this unsupervised anomaly detection example, install it via:")
+        print("  pip install 'mlxplain-xai[shap]'")
+        print("\nAlternatively, run the Logistic Regression or Decision Tree credit risk examples.")
+        return
     # 1. Create a synthetic server metric dataset
     print("Generating synthetic server metrics dataset...")
     np.random.seed(42)
@@ -94,14 +102,14 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     # Save each chart to the examples/output/ folder
-    report.figures["gauge"].savefig(os.path.join(output_dir, "anomaly_gauge.png"), dpi=150)
-    report.figures["drivers"].savefig(os.path.join(output_dir, "anomaly_drivers.png"), dpi=150)
-    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "anomaly_counterfactuals.png"), dpi=150)
+    report.figures["gauge"].savefig(os.path.join(output_dir, "anomaly_gauge.jpg"), dpi=150)
+    report.figures["drivers"].savefig(os.path.join(output_dir, "anomaly_drivers.jpg"), dpi=150)
+    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "anomaly_counterfactuals.jpg"), dpi=150)
 
     print("Success! Matplotlib figures successfully saved to:")
-    print(f"  - {os.path.join(output_dir, 'anomaly_gauge.png')}")
-    print(f"  - {os.path.join(output_dir, 'anomaly_drivers.png')}")
-    print(f"  - {os.path.join(output_dir, 'anomaly_counterfactuals.png')}")
+    print(f"  - {os.path.join(output_dir, 'anomaly_gauge.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'anomaly_drivers.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'anomaly_counterfactuals.jpg')}")
 
 
 if __name__ == "__main__":

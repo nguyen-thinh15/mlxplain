@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/hero_banner.png" alt="mlxplain — Explainable AI for Credit Decisions" width="700"/>
+  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/hero_banner.jpg" alt="mlxplain — Explainable AI for Credit Decisions" width="700"/>
 </p>
 
 <h1 align="center">mlxplain</h1>
@@ -12,6 +12,7 @@
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <a href="#-supported-models--xai-translators"><img src="https://img.shields.io/badge/models-LogReg%20%7C%20Trees%20%7C%20XGBoost-teal.svg" alt="Supported Models"></a>
+  <a href="#-featured-examples-gallery"><img src="https://img.shields.io/badge/examples-10%2B-purple.svg" alt="Examples"></a>
 </p>
 
 <p align="center">
@@ -25,11 +26,15 @@
 **One function call. Multi-pillar professional outputs.** No complex configuration needed.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/workflow_diagram.png" alt="mlxplain workflow: Train → Explain → Results" width="650"/>
+  <img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/workflow_diagram.jpg" alt="mlxplain workflow: Train → Explain → Results" width="650"/>
 </p>
 
 ### 💻 Standing Out: Premium HTML Risk Dossier
 In addition to standard text memos and charts, `mlxplain` generates a fully standalone, **premium glassmorphic HTML Credit Risk Dossier** with inlined high-resolution vector SVGs. This provides a portable, compliance-ready interactive risk dashboard out-of-the-box!
+
+<p align="center">
+  <img src="docs/images/examples/premium_dossier_screenshot.jpg" alt="Premium HTML Dossier" width="650"/>
+</p>
 
 ### 📊 Auto-Generated Diagnostic Charts
 
@@ -42,9 +47,9 @@ Every call to `explain_risk()` produces three publication-ready `matplotlib` fig
     <td align="center"><strong>Counterfactual Bars</strong><br/><em>What needs to change?</em></td>
   </tr>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_gauge.png" alt="Probability Gauge" width="350"/></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.png" alt="Feature Drivers" width="350"/></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_counterfactuals.png" alt="Counterfactual Changes" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_gauge.jpg" alt="Probability Gauge" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.jpg" alt="Feature Drivers" width="350"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_counterfactuals.jpg" alt="Counterfactual Changes" width="350"/></td>
   </tr>
 </table>
 
@@ -90,13 +95,24 @@ CURE PATHS (changes needed for approval):
 ## ⚡ Quick Start (4 Lines)
 
 ```python
+from mlxplain import explain_risk
+
+report = explain_risk(model, X_train, idx=10, feature_names=FEATURES, threshold=0.45)
+print(report.summary)
+report.figures["gauge"].savefig("gauge.svg")
+```
+
+### 💡 Full Integration Example
+If you want to see a full, working script including model training and complete visualization exports:
+
+```python
 from sklearn.ensemble import RandomForestClassifier
 from mlxplain import explain_risk
 
 # 1. Fit your standard ML model (e.g. 12-feature credit scoring model)
 model = RandomForestClassifier().fit(X_train, y_train)
 
-# 2. Define the 12 comprehensive attributes
+# 2. Define the comprehensive feature names
 feature_names = [
     "Annual Income ($k)", "Debt-to-Income (%)", "Credit Score (FICO)",
     "Employment Duration (yrs)", "Savings Balance ($k)", "Requested Loan Amount ($k)",
@@ -117,6 +133,23 @@ report.figures["counterfactuals"].savefig("counterfactuals.svg")
 ```
 
 ---
+
+## ⚙️ Conventions & Policy
+
+### Threshold & Direction Semantics
+- **Decision Rule:** Predictions with `probability >= threshold` receive the `positive_label`; predictions with `probability < threshold` receive the `negative_label`.
+- **Driver Direction:** A **positive driver** pushes the prediction toward the `positive_label` (e.g. increases rủi ro/anomalous behavior/cluster assignment). A **negative driver** mitigates/pushes toward the `negative_label`.
+  - *Credit Risk:* `positive_label` = **Declined**, `negative_label` = **Approved**. A positive driver means it *increases* default risk (pushes toward decline).
+  - *Fraud Triage:* `positive_label` = **Fraud/Review**, `negative_label` = **Clean**.
+  - *Anomaly Detection:* `positive_label` = **Anomaly**, `negative_label` = **Normal**.
+
+### Categorical Feature Policy
+- **Continuous Default:** Currently, all features are treated as continuous.
+- **Upstream Handling:** One-hot or ordinal-encode categorical features upstream before calling `explain()`.
+- **Roadmap:** Native discrete categorical counterfactual swaps and visualizations will be supported in version `v0.2.0`.
+
+---
+
 
 ## 💻 Supported Models & XAI Translators
 
@@ -142,9 +175,9 @@ report.figures["counterfactuals"].savefig("counterfactuals.svg")
   </tr>
   <tr>
     <td><strong>Feature Drivers</strong></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.png" alt="Logistic Drivers" width="280"/></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/tree_drivers.png" alt="Tree Drivers" width="280"/></td>
-    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/ensemble_drivers.png" alt="Ensemble Drivers" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/logistic_drivers.jpg" alt="Logistic Drivers" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/tree_drivers.jpg" alt="Tree Drivers" width="280"/></td>
+    <td><img src="https://raw.githubusercontent.com/nguyen-thinh15/mlxplain/main/docs/images/ensemble_drivers.jpg" alt="Ensemble Drivers" width="280"/></td>
   </tr>
 </table>
 
@@ -190,6 +223,101 @@ The credit risk domain interpreter maps mathematical abstractions into commercia
 
 ---
 
+## 🖥️ Command-Line Interface (CLI)
+
+**mlxplain** features an advanced, standard-library-based CLI tool `mlxplain` to generate reports, print colored terminal dashboards, and export files with zero python code!
+
+### Usage Syntax
+```bash
+mlxplain explain --model model.pkl --data features.csv --idx 0 [options]
+```
+
+### Options & Parameter Mapping
+* `--model`: Path to a pickled or `joblib` trained model.
+  * *Security notice*: Prints a clear runtime warning about arbitrary code execution in untrusted files.
+* `--data`: Path to a CSV file containing your feature rows. Columns are automatically parsed (headers are auto-detected!).
+* `--idx`: Zero-based row index to explain (default: `0`).
+* `--threshold`: Classification decision boundary (default: `0.5`).
+* `--output`: Optional file path to write results (HTML or JSON).
+* `--format`: Output format, choosing from:
+  * `text`: Gorgeous ANSI-colored terminal dashboard displaying a decision progress bar, colored driver impact scales, and a counterfactual checkbox list.
+  * `json`: Structured, machine-readable JSON representation of prediction scores, sorted drivers, and cure paths.
+  * `memo`: Raw, unformatted business underwriting/credit memo text.
+  * `html`: High-DPI single-file HTML report.
+* `--domain`: Business domain routing, e.g. `credit_risk` maps to `explain_risk()` metrics.
+* `--language`: Translation selection, choosing from `en` (English) or `vi` (Vietnamese).
+* `--immutable`: Comma-separated list of immutable feature names (e.g. `--immutable "Age,History"`).
+* `--bounds`: High-precision feature constraints, passed as a raw JSON string (e.g. `--bounds '{"Income": [10000, 50000]}'`) or a JSON file path.
+
+---
+
+## 📊 Interactive Dashboards & Premium HTML Dossier
+
+### 1. Dynamic Plotly Dashboards
+In addition to static matplotlib charts, you can generate fully interactive Plotly equivalents:
+* **Interactive Gauge**: Displays decision boundaries with dynamic arcs and markers.
+* **Feature Driver Waterfall**: Allows hovering to inspect exact attribution margins.
+* **Grouped Counterfactuals**: Interactive grouping to easily compare current vs required values.
+* **Per-Class Heatmap**: Divergent color scales showing class contributions dynamically.
+
+To generate these interactive Plotly figures, simply call:
+```python
+from mlxplain.visualizations.plotly_charts import plot_report_plotly
+
+# Returns a dictionary of Plotly Figure objects: gauge, drivers, counterfactuals, heatmap
+plotly_figures = plot_report_plotly(report)
+```
+
+### 2. Single-File HTML Reports (`export_html`)
+Compile the complete explanation report into a self-contained, high-DPI HTML report suitable for compliance, triage audits, or emailing to underwriters:
+* Embeds all matplotlib figures natively as Base64-encoded PNG strings.
+* Optionally incorporates active interactive Plotly graphs using a single CDN library script in the header.
+* Features a responsive CSS design (supporting dark/light preferences), glassmorphism card containers, and clean Outfit/Inter Google typography.
+* **Print-Ready**: Configured with CSS print viewports for high-fidelity browser print-to-PDF ("Save as PDF").
+
+```python
+from mlxplain.core.exporter import export_html
+
+# Exports the report directly as a premium single-file HTML dashboard
+export_html(report, "dossier.html", include_plotly=True)
+```
+
+---
+
+## 🎨 Featured Examples Gallery
+
+**mlxplain** is accompanied by 10 comprehensive, ready-to-run examples demonstrating standard business scenarios, mathematical paradigms, and premium visualizations.
+
+### 📊 Highlighted Showcases
+
+<table>
+  <tr>
+    <td align="center"><strong>Multi-Model Comparison Grid</strong><br/><em>(Example 08: Side-by-side consistency verification)</em></td>
+    <td align="center"><strong>Constrained Compliance Counterfactuals</strong><br/><em>(Example 09: Locked histories & FICO limits)</em></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/examples/model_comparison_grid.jpg" alt="Multi-Model Comparison" width="450"/></td>
+    <td><img src="docs/images/examples/constrained_counterfactuals.jpg" alt="Constrained Compliance" width="450"/></td>
+  </tr>
+</table>
+
+### 📂 Directory of Runnable Examples
+
+| Example Script | Business Domain | Key XAI Capability Showcased | Optional Deps |
+| :--- | :--- | :--- | :--- |
+| [01_logistic_credit_risk.py](examples/01_logistic_credit_risk.py) | Credit Underwriting | Logistic Regression exact analytical counterfactual cure paths | None |
+| [02_decision_tree_credit_risk.py](examples/02_decision_tree_credit_risk.py) | Credit Underwriting | Split-level decision tree path probability contributions | None |
+| [03_ensemble_credit_risk.py](examples/03_ensemble_credit_risk.py) | Credit Underwriting | XGBoost / LightGBM game-theoretic SHAP driver attributions | `xgboost`, `shap` |
+| [04_advanced_credit_risk.py](examples/04_advanced_credit_risk.py) | Credit Underwriting | 12-feature high-DPI glassmorphic HTML dossier compiler | `xgboost` (opt) |
+| [05_anomaly_detection.py](examples/05_anomaly_detection.py) | Server IT Operations | Isolation Forest anomaly score normalization & DDoS spike drivers | `shap` |
+| [06_kmeans_clustering.py](examples/06_kmeans_clustering.py) | Retail Marketing | KMeans customer segments spatial centroid L2 counterfactual roadmap | None |
+| [07_multiclass_credit_grading.py](examples/07_multiclass_credit_grading.py) | Credit Underwriting | Multinomial multi-class credit grading with Vietnamese localization | None |
+| [08_model_comparison.py](examples/08_model_comparison.py) | Underwriting Compliance | Stitched multi-model waterfall driver consistency comparison | `xgboost` (opt) |
+| [09_constrained_counterfactuals.py](examples/09_constrained_counterfactuals.py) | Compliance / Safety | Safety bounds and immutable years history constraints | None |
+| [10_plotly_dashboards.py](examples/10_plotly_dashboards.py) | Web Risk Triage | Premium interactive Plotly widgets & dynamic HTML exports | `plotly` |
+
+---
+
 ## 🚀 Runnable Examples
 
 The `examples/` directory contains complete, runnable scripts showing **mlxplain** end-to-end. They generate synthetic credit data, train models, produce reports, and save diagnostic plots.
@@ -214,6 +342,18 @@ uv run python examples/05_anomaly_detection.py
 
 # 6. Run the Unsupervised KMeans Customer Segmentation example
 uv run python examples/06_kmeans_clustering.py
+
+# 7. Run the Localized Multi-Class Credit Grading example
+uv run python examples/07_multiclass_credit_grading.py
+
+# 8. Run the Side-by-Side Model Comparison example
+uv run python examples/08_model_comparison.py
+
+# 9. Run the Constrained Compliant Counterfactuals example
+uv run python examples/09_constrained_counterfactuals.py
+
+# 10. Run the Premium Interactive Plotly Dashboards example
+uv run python examples/10_plotly_dashboards.py
 ```
 
 All examples save their generated plots to `examples/output/`. The advanced example also creates `dossier.html` in that directory — open it in your browser to view the interactive glassmorphic dashboard!
@@ -238,21 +378,51 @@ All examples save their generated plots to `examples/output/`. The advanced exam
 
 ---
 
+## 🔠 Multi-Class Classification Explainability (Grades & Tiers)
+
+**mlxplain** provides native support for multi-class classification models, extending unified feature impact tracking and counterfactual cure paths beyond simple binary decisions:
+
+* **Argmax Prediction & Runner-Up Defaults**: Automatically detects multi-class models, classifies via standard probability argmax, and defaults the counterfactual target to the **runner-up class** (the most likely alternative) if no explicit `target_class` is provided.
+* **Premium Heatmap & Probability Charts**: In multi-class mode, `plot_report()` automatically swaps the binary gauge for:
+  1. A **Class Probabilities Bar Chart** highlighting the predicted class.
+  2. A **Per-Class Feature Impact Heatmap** displaying a rich, divergent representation of feature contributions across all classes.
+* **Closed-Form Multinomial Counterfactuals**: Invents exact analytical multinomial logit transformations to solve for the boundary transition $\Delta X_f = \frac{z_{c^*} - z_t}{W_{t, f} - W_{c^*, f}}$ with absolute mathematical precision.
+* **Credit Risk Grading & Localized Memos**: Adapts underwriting outputs for risk tiers (A/B/C), generating credit grade memos localized as **"Grade A/B/C"** in English and **"Hạng A/B/C"** in Vietnamese.
+
+---
+
 ## 📦 Installation
 
 This project is fully compatible with [uv](https://github.com/astral-sh/uv) for lightning-fast package management.
 
 ### For Users
 
-Install `mlxplain` directly into your virtual environment:
+Install the base package directly into your virtual environment (logistic and tree models work out-of-the-box):
 
 ```bash
-uv pip install mlxplain
+uv pip install mlxplain-xai
 # or using standard pip
-pip install mlxplain
+pip install mlxplain-xai
 ```
 
-Or install the locked dependencies using the provided `requirements.txt`:
+#### Optional Backends (XGBoost / LightGBM / IsolationForest)
+To use ensemble-based explainers or unsupervised anomaly detection, install with the `shap` optional extra:
+
+```bash
+pip install mlxplain-xai[shap]
+```
+
+#### Interactive Dashboards Backend (Plotly)
+To generate dynamic Plotly-based interactive dashboards alongside matplotlib, install with the `plotly` extra:
+
+```bash
+pip install mlxplain-xai[plotly]
+```
+
+> [!NOTE]
+> **Upgrading from 0.1.x?** `shap` is now an optional dependency in `v0.2.0` to reduce startup import overhead. If your code uses XGBoost, LightGBM, or IsolationForest, please make sure to install/upgrade using `pip install mlxplain-xai[shap]`. See [CHANGELOG.md](file:///Users/thinhnguyen/Documents/GitHub/mlxplain/CHANGELOG.md) for full details.
+
+Or install the locked development dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -279,5 +449,5 @@ Set up the project locally for development:
    uv run pytest tests/ -v
    ```
 
-**Core Dependencies:** `numpy`, `scikit-learn`, `shap`, `matplotlib`
-**Optional Dependencies (for ensembles):** `xgboost`, `lightgbm`
+**Core Dependencies:** `numpy`, `scikit-learn`, `matplotlib`
+**Optional Dependencies:** `shap`, `xgboost`, `lightgbm` (for ensembles), `plotly` (for interactive charts)

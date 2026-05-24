@@ -20,3 +20,10 @@ class BaseDomain(ABC):
         Should populate report.summary and report.domain_output.
         Returns the same report object (mutated).
         """
+
+    def interpret_multiclass(self, report: ExplanationReport) -> ExplanationReport:
+        """Enrich a multi-class report with domain-specific context.
+
+        Default fallback calls interpret().
+        """
+        return self.interpret(report)

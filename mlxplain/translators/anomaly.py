@@ -5,16 +5,35 @@ from __future__ import annotations
 import warnings
 
 import numpy as np
-import shap
 
 from mlxplain.core.report import Counterfactual, FeatureDriver
 from mlxplain.translators.base import BaseTranslator
 
 
 class IsolationForestTranslator(BaseTranslator):
-    """Translates IsolationForest predictions via SHAP values."""
+    """Translates IsolationForest predictions via SHAP values.
+
+    CORRECTNESS INVARIANT:
+    By default, scikit-learn's `IsolationForest` scores anomalies based on tree path lengths:
+    shorter path lengths imply high anomaly, while longer path lengths imply standard normal samples.
+    Consequently, SHAP's `TreeExplainer` assigns negative attribution values to features that
+    decrease tree path length (making the instance more anomalous).
+
+    To ensure that "positive drivers" consistently denote features pushing toward anomalous behavior,
+    we multiply the raw SHAP values from `TreeExplainer` by -1.0. This achieves sign-alignment
+    with the model's overall anomaly score (where higher scores denote anomalies) and maintains
+    perfect consistency with fallback model-agnostic explainers and visual waterfall directionality.
+    See docs/internals.md for a detailed mathematical proof of this correctness invariant.
+    """
 
     def __init__(self, language: str = "en"):
+        try:
+            import shap  # noqa: F401
+        except ImportError as e:
+            raise ImportError(
+                "IsolationForestTranslator requires the optional 'shap' backend. "
+                "Please install it using: pip install mlxplain-xai[shap]"
+            ) from e
         super().__init__(language)
 
     def get_probability(self, model, X: np.ndarray, idx: int) -> float:
@@ -28,15 +47,20 @@ class IsolationForestTranslator(BaseTranslator):
 
     def extract_drivers(self, model, X: np.ndarray, idx: int, feature_names: list[str]) -> list[FeatureDriver]:
         """Extract per-feature contributions to the anomaly score using SHAP."""
+        import shap
+
         instance = X[idx]
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             try:
                 explainer = shap.TreeExplainer(model)
+
                 shap_values = explainer.shap_values(instance.reshape(1, -1))
                 # TreeExplainer explains path length (shorter = more anomalous).
-                # We multiply by -1.0 to align with the anomaly score (higher score = more anomalous).
+                # To align with our conventions, we multiply by -1.0 so that features
+                # pushing toward anomalies receive positive drivers (higher score = more anomalous).
+                # Refer to docs/internals.md for detailed documentation of this invariant.
                 if hasattr(shap_values, "values"):
                     shap_values = -shap_values.values
                 elif isinstance(shap_values, list):
@@ -100,11 +124,17 @@ class IsolationForestTranslator(BaseTranslator):
         idx: int,
         threshold: float,
         feature_names: list[str],
+        immutable_features: list[str] | None = None,
+        feature_bounds: dict[str, tuple[float, float]] | None = None,
     ) -> list[Counterfactual]:
         """Perturbation-based counterfactual search to make the instance normal."""
         instance = X[idx]
         current_score = self.get_probability(model, X, idx)
         above_threshold = current_score >= threshold
+
+        from mlxplain.core.counterfactual import ConstraintHelper
+
+        helper = ConstraintHelper(feature_names, immutable_features, feature_bounds)
 
         counterfactuals = []
         n_steps = 50
@@ -112,14 +142,19 @@ class IsolationForestTranslator(BaseTranslator):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             for i, name in enumerate(feature_names):
+                if not helper.is_mutable(name):
+                    continue
                 original = instance[i]
                 best_change = None
                 for direction in [1, -1]:
                     search_range = max(abs(original) * 3, 1.0)
                     for step in range(1, n_steps + 1):
                         delta = direction * search_range * step / n_steps
+                        perturbed_val = original + delta
+                        if not helper.is_within_bounds(name, perturbed_val):
+                            continue
                         perturbed = instance.copy()
-                        perturbed[i] = original + delta
+                        perturbed[i] = perturbed_val
                         new_score = float(-model.score_samples(perturbed.reshape(1, -1))[0])
                         flipped = (new_score >= threshold) != above_threshold
                         if flipped:
@@ -138,4 +173,12 @@ class IsolationForestTranslator(BaseTranslator):
                     )
 
         counterfactuals.sort(key=lambda c: abs(c.change_needed))
+
+        if not counterfactuals:
+            warnings.warn(
+                "No feasible counterfactual path exists within current feature constraints and bounds.",
+                UserWarning,
+                stacklevel=2,
+            )
+
         return counterfactuals
