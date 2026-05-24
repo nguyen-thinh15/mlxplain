@@ -14,6 +14,10 @@
   <a href="#-các-mô-hình-được-hỗ-trợ--bộ-dịch-xai"><img src="https://img.shields.io/badge/models-LogReg%20%7C%20Trees%20%7C%20XGBoost-teal.svg" alt="Mô hình Hỗ trợ"></a>
 </p>
 
+<p align="center">
+  <a href="README.md">🇺🇸 English</a> • 🇻🇳 <strong>Tiếng Việt</strong>
+</p>
+
 ---
 
 ## 🔥 Những gì bạn nhận được
