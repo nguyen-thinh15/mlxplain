@@ -41,3 +41,27 @@ class CreditRiskDomain(BaseDomain):
         }
         report.summary = generate_credit_memo(report)
         return report
+
+    def interpret_multiclass(self, report: ExplanationReport) -> ExplanationReport:
+        language = report.domain_output.get("language", "en")
+        target_class = report.domain_output.get("target_class", "")
+
+        if language == "vi":
+            decision = f"Hạng {report.prediction}"
+            target_class_label = f"Hạng {target_class}" if target_class else ""
+        else:
+            decision = f"Grade {report.prediction}"
+            target_class_label = f"Grade {target_class}" if target_class else ""
+
+        report.domain_output.update(
+            {
+                "decision": decision,
+                "target_class_label": target_class_label,
+                "risk_factors": report.positive_drivers,
+                "mitigating_factors": report.negative_drivers,
+                "cure_paths": report.counterfactuals,
+                "language": language,
+            }
+        )
+        report.summary = generate_credit_memo(report)
+        return report

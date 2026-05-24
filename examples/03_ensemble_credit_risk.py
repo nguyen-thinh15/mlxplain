@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
 """Example demonstrating mlxplain with an Ensemble Boosting model (XGBoost) in credit risk.
 
-This example:
-1. Generates a synthetic credit underwriting dataset.
-2. Trains an XGBoost XGBClassifier.
-3. Explains a high-risk applicant prediction using `explain_risk()`.
-4. Uses SHAP values internally (via EnsembleTranslator) to extract and rank feature drivers.
-5. Outputs the human-readable credit decision memo.
-6. Saves visual charts (gauge, waterfall, counterfactuals) to the output folder.
+Business Scenario: Explaining credit default risk for high-risk applications using gradient boosted ensembles.
+mlxplain Capability: Ensemble SHAP-based feature driver extraction, sample-bounded perturbation counterfactuals (cure paths), and credit underwriting memo generation.
+Expected Runtime: < 2 seconds.
+Required Dependencies: numpy, scikit-learn, matplotlib, xgboost, shap, mlxplain.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import os
 
 import numpy as np
 
 from mlxplain import explain_risk
 
-# Try to import xgboost
-try:
+# Check optional dependencies: xgboost and shap
+has_deps = importlib.util.find_spec("xgboost") is not None and importlib.util.find_spec("shap") is not None
+
+if has_deps:
     import xgboost as xgb
-except ImportError:
+else:
     xgb = None
 
 
 def main():
     if xgb is None:
-        print("XGBoost is not installed. To run this ensemble example, install it via:")
-        print("  pip install xgboost")
+        print("XGBoost or SHAP is not installed. To run this ensemble example, install them via:")
+        print("  pip install 'mlxplain-xai[shap]'")
         print("\nAlternatively, run the other examples (Logistic Regression or Decision Tree).")
         return
 
@@ -89,14 +89,14 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     # Save each chart to the examples/output/ folder
-    report.figures["gauge"].savefig(os.path.join(output_dir, "ensemble_gauge.png"), dpi=150)
-    report.figures["drivers"].savefig(os.path.join(output_dir, "ensemble_drivers.png"), dpi=150)
-    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "ensemble_counterfactuals.png"), dpi=150)
+    report.figures["gauge"].savefig(os.path.join(output_dir, "ensemble_gauge.jpg"), dpi=150)
+    report.figures["drivers"].savefig(os.path.join(output_dir, "ensemble_drivers.jpg"), dpi=150)
+    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "ensemble_counterfactuals.jpg"), dpi=150)
 
     print("Success! Matplotlib figures successfully saved to:")
-    print(f"  - {os.path.join(output_dir, 'ensemble_gauge.png')}")
-    print(f"  - {os.path.join(output_dir, 'ensemble_drivers.png')}")
-    print(f"  - {os.path.join(output_dir, 'ensemble_counterfactuals.png')}")
+    print(f"  - {os.path.join(output_dir, 'ensemble_gauge.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'ensemble_drivers.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'ensemble_counterfactuals.jpg')}")
 
 
 if __name__ == "__main__":

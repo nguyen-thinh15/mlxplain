@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 
 from mlxplain.core.counterfactual import compute_counterfactuals_perturbation
@@ -17,16 +19,27 @@ class TreeTranslator(BaseTranslator):
 
     def get_probability(self, model, X: np.ndarray, idx: int) -> float:
         instance = X[idx].reshape(1, -1)
-        return float(model.predict_proba(instance)[0, 1])
+        probs = model.predict_proba(instance)[0]
+        if hasattr(model, "classes_") and len(model.classes_) > 2:
+            return float(np.max(probs))
+        return float(probs[1])
 
     def extract_drivers(self, model, X: np.ndarray, idx: int, feature_names: list[str]) -> list[FeatureDriver]:
         instance = X[idx]
+        is_multiclass = hasattr(model, "classes_") and len(model.classes_) > 2
+        n_classes = len(model.classes_) if hasattr(model, "classes_") else 2
+
+        if is_multiclass:
+            probs = model.predict_proba(instance.reshape(1, -1))[0]
+            pred_idx = int(np.argmax(probs))
+        else:
+            pred_idx = 1
 
         # Determine estimators
         estimators = model.estimators_ if hasattr(model, "estimators_") else [model]
 
         # Accumulate feature contributions across all estimators
-        all_contributions: dict[str, list[float]] = {}
+        all_contributions: dict[str, list[np.ndarray]] = {}
 
         for estimator in estimators:
             tree = estimator.tree_
@@ -50,14 +63,14 @@ class TreeTranslator(BaseTranslator):
                 # Determine child node
                 child_node_id = children_left[node_id] if feat_val <= thresh else children_right[node_id]
 
-                # Calculate probability difference
+                # Calculate probability difference vector across all classes
                 counts_node = values[node_id].flatten()
                 total_node = counts_node.sum()
-                p_node = float(counts_node[1] / total_node) if total_node > 0 else 0.0
+                p_node = counts_node / total_node if total_node > 0 else np.zeros(n_classes)
 
                 counts_child = values[child_node_id].flatten()
                 total_child = counts_child.sum()
-                p_child = float(counts_child[1] / total_child) if total_child > 0 else 0.0
+                p_child = counts_child / total_child if total_child > 0 else np.zeros(n_classes)
 
                 delta_p = p_child - p_node
 
@@ -69,26 +82,38 @@ class TreeTranslator(BaseTranslator):
         drivers = []
         for feat_idx, name in enumerate(feature_names):
             contribs = all_contributions.get(name, [])
-            # Pad with 0.0 for trees that did not split on this feature
+            # Pad with zeros for trees that did not split on this feature
             n_missing = len(estimators) - len(contribs)
             if n_missing > 0:
-                contribs = contribs + [0.0] * n_missing
+                padding = [np.zeros(n_classes) for _ in range(n_missing)]
+                contribs = contribs + padding
 
-            mean_contrib = float(np.mean(contribs)) if contribs else 0.0
-            if abs(mean_contrib) < 1e-10:
+            mean_contrib_vec = np.mean(contribs, axis=0) if contribs else np.zeros(n_classes)
+
+            # Extract contribution for the predicted class
+            pred_contrib = mean_contrib_vec[pred_idx] if is_multiclass else mean_contrib_vec[1]
+            if abs(pred_contrib) < 1e-10 and not is_multiclass:
+                continue
+            if is_multiclass and np.all(np.abs(mean_contrib_vec) < 1e-10):
                 continue
 
             if self.language == "vi":
-                direction = "tích cực" if mean_contrib >= 0 else "tiêu cực"
+                direction = "tích cực" if pred_contrib >= 0 else "tiêu cực"
             else:
-                direction = "positive" if mean_contrib >= 0 else "negative"
+                direction = "positive" if pred_contrib >= 0 else "negative"
+
+            if is_multiclass:
+                per_class = {str(c): float(mean_contrib_vec[c_idx]) for c_idx, c in enumerate(model.classes_)}
+            else:
+                per_class = None
 
             drivers.append(
                 FeatureDriver(
                     feature=name,
                     value=float(instance[feat_idx]),
-                    impact=float(abs(mean_contrib)),
+                    impact=float(abs(pred_contrib)),
                     direction=direction,
+                    per_class_impacts=per_class,
                 )
             )
 
@@ -102,5 +127,16 @@ class TreeTranslator(BaseTranslator):
         idx: int,
         threshold: float,
         feature_names: list[str],
+        immutable_features: list[str] | None = None,
+        feature_bounds: dict[str, tuple[float, float]] | None = None,
+        target_class: Any | None = None,
     ) -> list[Counterfactual]:
-        return compute_counterfactuals_perturbation(model, X[idx], threshold, feature_names)
+        return compute_counterfactuals_perturbation(
+            model,
+            X[idx],
+            threshold,
+            feature_names,
+            immutable_features=immutable_features,
+            feature_bounds=feature_bounds,
+            target_class=target_class,
+        )

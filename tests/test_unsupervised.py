@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import importlib.util
+
 import numpy as np
 import pytest
 from sklearn.cluster import KMeans
 from sklearn.ensemble import IsolationForest
 
 from mlxplain import explain, explain_cluster
+
+has_shap = importlib.util.find_spec("shap") is not None
 
 
 @pytest.fixture
@@ -36,6 +40,7 @@ def synthetic_cluster_data():
     return X, feature_names
 
 
+@pytest.mark.skipif(not has_shap, reason="shap is required for IsolationForest tests")
 def test_isolation_forest_english(synthetic_anomaly_data):
     """Test IsolationForest explanation in English."""
     X, feature_names = synthetic_anomaly_data
@@ -77,6 +82,7 @@ def test_isolation_forest_english(synthetic_anomaly_data):
     assert "counterfactuals" in report.figures
 
 
+@pytest.mark.skipif(not has_shap, reason="shap is required for IsolationForest tests")
 def test_isolation_forest_vietnamese(synthetic_anomaly_data):
     """Test IsolationForest explanation in Vietnamese."""
     X, feature_names = synthetic_anomaly_data

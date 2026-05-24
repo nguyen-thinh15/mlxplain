@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        install: ["base", "full"]
+        include:
+          # Spot checks on macOS and Windows to keep CI fast and reliable
+          - os: macos-latest
+            python-version: "3.12"
+            install: "full"
+          - os: windows-latest
+            python-version: "3.12"
+            install: "full"
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Upgrade pip and install build dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+
+    - name: Install mlxplain (Base Installation)
+      if: matrix.install == 'base'
+      run: |
+        pip install -e .[dev]
+
+    - name: Install mlxplain (Full Installation with SHAP)
+      if: matrix.install == 'full'
+      # Continue on error for Python 3.13 if SHAP transitive C/C++ extensions fail to build from source
+      continue-on-error: ${{ matrix.python-version == '3.13' }}
+      run: |
+        pip install -e .[dev,shap]
+
+    - name: Run test suite
+      run: |
+        pytest tests/ -v

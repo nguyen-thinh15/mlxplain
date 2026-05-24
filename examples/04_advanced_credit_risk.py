@@ -1,23 +1,16 @@
 #!/usr/bin/env python3
 """Example demonstrating mlxplain across all three XAI translators in credit risk.
 
-This example:
-1. Generates a synthetic, high-fidelity credit scoring dataset with 12 key financial and behavioral features.
-2. Trains three different models:
-   - scikit-learn LogisticRegression (LogisticTranslator)
-   - scikit-learn RandomForestClassifier (TreeTranslator)
-   - XGBoost XGBClassifier (EnsembleTranslator - SHAP-based)
-3. Identifies a borderline declined candidate and explains them under all three models using `explain_risk()`.
-4. Saves high-quality vector SVGs of the charts for all three models.
-5. Generates three distinct, standalone, glassmorphic HTML Credit Intelligence Dossiers:
-   - examples/output/logistic_dossier.html (analytical exact counterfactuals)
-   - examples/output/tree_dossier.html (split-level path counterfactuals)
-   - examples/output/ensemble_dossier.html (SHAP value counterfactuals)
+Business Scenario: Advanced credit risk analysis with a high-dimensional 12-feature dataset, comparing three model types (Logistic Regression, Random Forest, XGBoost) and exporting glassmorphic HTML dashboards.
+mlxplain Capability: Translating multi-model pipelines, saving high-resolution vector diagnostics (gauge, waterfall, counterfactuals), and exporting premium standalone HTML credit dossiers.
+Expected Runtime: < 5 seconds.
+Required Dependencies: numpy, scikit-learn, matplotlib, xgboost (optional), shap (optional), mlxplain.
 """
 
 from __future__ import annotations
 
 import contextlib
+import importlib.util
 import os
 import uuid
 from datetime import datetime
@@ -28,10 +21,12 @@ from sklearn.linear_model import LogisticRegression
 
 from mlxplain import explain_risk
 
-# Try to import xgboost
-try:
+# Check optional dependencies: xgboost and shap
+has_deps = importlib.util.find_spec("xgboost") is not None and importlib.util.find_spec("shap") is not None
+
+if has_deps:
     import xgboost as xgb
-except ImportError:
+else:
     xgb = None
 
 
@@ -48,6 +43,9 @@ def generate_dossier_html(
     counterfactuals_svg,
 ) -> str:
     """Generate a premium glassmorphic HTML dossier."""
+    if report.probabilities is not None:
+        raise NotImplementedError("Advanced HTML dossiers are currently deferred for multi-class reports.")
+
     decision = report.prediction
     probability = report.probability
     threshold = report.threshold
@@ -932,16 +930,16 @@ def main():
         docs_images_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs", "images")
         os.makedirs(docs_images_dir, exist_ok=True)
         report.figures["gauge"].savefig(
-            os.path.join(docs_images_dir, f"{cfg['prefix']}_gauge.png"), dpi=150, bbox_inches="tight", transparent=True
+            os.path.join(docs_images_dir, f"{cfg['prefix']}_gauge.jpg"), dpi=150, bbox_inches="tight", transparent=True
         )
         report.figures["drivers"].savefig(
-            os.path.join(docs_images_dir, f"{cfg['prefix']}_drivers.png"),
+            os.path.join(docs_images_dir, f"{cfg['prefix']}_drivers.jpg"),
             dpi=150,
             bbox_inches="tight",
             transparent=True,
         )
         report.figures["counterfactuals"].savefig(
-            os.path.join(docs_images_dir, f"{cfg['prefix']}_counterfactuals.png"),
+            os.path.join(docs_images_dir, f"{cfg['prefix']}_counterfactuals.jpg"),
             dpi=150,
             bbox_inches="tight",
             transparent=True,

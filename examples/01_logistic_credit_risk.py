@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """Example demonstrating mlxplain with a Logistic Regression model in credit risk.
 
-This example:
-1. Generates a synthetic credit underwriting dataset.
-2. Trains a scikit-learn LogisticRegression model.
-3. Explains a high-risk applicant prediction using `explain_risk()`.
-4. Outputs the human-readable credit decision memo.
-5. Saves visual charts (gauge, waterfall, counterfactuals) to the output folder.
+Business Scenario: Explaining credit default risk for retail bank loan applications to underwriters.
+mlxplain Capability: Logistic regression coefficients translation, exact closed-form analytical counterfactuals (cure paths), and credit underwriting memo interpretation with static matplotlib diagnostics.
+Expected Runtime: < 1 second.
+Required Dependencies: numpy, scikit-learn, matplotlib, mlxplain.
 """
 
 from __future__ import annotations
@@ -76,14 +74,14 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     # Save each chart to the examples/output/ folder
-    report.figures["gauge"].savefig(os.path.join(output_dir, "logistic_gauge.png"), dpi=150)
-    report.figures["drivers"].savefig(os.path.join(output_dir, "logistic_drivers.png"), dpi=150)
-    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "logistic_counterfactuals.png"), dpi=150)
+    report.figures["gauge"].savefig(os.path.join(output_dir, "logistic_gauge.jpg"), dpi=150)
+    report.figures["drivers"].savefig(os.path.join(output_dir, "logistic_drivers.jpg"), dpi=150)
+    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "logistic_counterfactuals.jpg"), dpi=150)
 
     print("Success! Matplotlib figures successfully saved to:")
-    print(f"  - {os.path.join(output_dir, 'logistic_gauge.png')}")
-    print(f"  - {os.path.join(output_dir, 'logistic_drivers.png')}")
-    print(f"  - {os.path.join(output_dir, 'logistic_counterfactuals.png')}")
+    print(f"  - {os.path.join(output_dir, 'logistic_gauge.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'logistic_drivers.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'logistic_counterfactuals.jpg')}")
 
 
 if __name__ == "__main__":

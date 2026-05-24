@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """Example demonstrating mlxplain with a Tree-Based model in credit risk.
 
-This example:
-1. Generates a synthetic credit underwriting dataset.
-2. Trains a scikit-learn DecisionTreeClassifier model.
-3. Explains a high-risk applicant prediction using `explain_risk()`.
-4. Outputs the human-readable credit decision memo.
-5. Saves visual charts (gauge, waterfall, counterfactuals) to the output folder.
+Business Scenario: Explaining credit default risk for bank loan applications to underwriters using tree splits.
+mlxplain Capability: Split-level tree path translation, discrete boundary perturbation counterfactuals (cure paths), and credit underwriting memo generation.
+Expected Runtime: < 1 second.
+Required Dependencies: numpy, scikit-learn, matplotlib, mlxplain.
 """
 
 from __future__ import annotations
@@ -76,14 +74,14 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     # Save each chart to the examples/output/ folder
-    report.figures["gauge"].savefig(os.path.join(output_dir, "tree_gauge.png"), dpi=150)
-    report.figures["drivers"].savefig(os.path.join(output_dir, "tree_drivers.png"), dpi=150)
-    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "tree_counterfactuals.png"), dpi=150)
+    report.figures["gauge"].savefig(os.path.join(output_dir, "tree_gauge.jpg"), dpi=150)
+    report.figures["drivers"].savefig(os.path.join(output_dir, "tree_drivers.jpg"), dpi=150)
+    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "tree_counterfactuals.jpg"), dpi=150)
 
     print("Success! Matplotlib figures successfully saved to:")
-    print(f"  - {os.path.join(output_dir, 'tree_gauge.png')}")
-    print(f"  - {os.path.join(output_dir, 'tree_drivers.png')}")
-    print(f"  - {os.path.join(output_dir, 'tree_counterfactuals.png')}")
+    print(f"  - {os.path.join(output_dir, 'tree_gauge.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'tree_drivers.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'tree_counterfactuals.jpg')}")
 
 
 if __name__ == "__main__":

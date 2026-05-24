@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """Example demonstrating mlxplain with a KMeans model for customer segmentation.
 
-This example:
-1. Generates a synthetic dataset of customer retail behavior.
-2. Trains a scikit-learn KMeans clustering model (3 clusters: Churn Risk, Average, High-Value).
-3. Selects a customer assigned to the "Churn Risk" segment.
-4. Uses `explain_cluster()` to explain why they were assigned to this segment vs the "High-Value" target segment.
-5. Prints a structured customer development plan outlining what features drive this segment and the exact closed-form counterfactual growth roadmap.
-6. Saves the generated visual charts (gauge, waterfall, counterfactuals) to the output folder.
+Business Scenario: Explaining retail customer behavior segments and designing marketing growth plans to upgrade customers to premium tiers.
+mlxplain Capability: Unsupervised KMeans explainability via spatial centroid distances, and closed-form mathematical L2 counterfactual projection roadmaps.
+Expected Runtime: < 1 second.
+Required Dependencies: numpy, scikit-learn, matplotlib, mlxplain.
 """
 
 from __future__ import annotations
@@ -101,14 +98,14 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     # Save each chart to the examples/output/ folder
-    report.figures["gauge"].savefig(os.path.join(output_dir, "kmeans_gauge.png"), dpi=150)
-    report.figures["drivers"].savefig(os.path.join(output_dir, "kmeans_drivers.png"), dpi=150)
-    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "kmeans_counterfactuals.png"), dpi=150)
+    report.figures["gauge"].savefig(os.path.join(output_dir, "kmeans_gauge.jpg"), dpi=150)
+    report.figures["drivers"].savefig(os.path.join(output_dir, "kmeans_drivers.jpg"), dpi=150)
+    report.figures["counterfactuals"].savefig(os.path.join(output_dir, "kmeans_counterfactuals.jpg"), dpi=150)
 
     print("Success! Matplotlib figures successfully saved to:")
-    print(f"  - {os.path.join(output_dir, 'kmeans_gauge.png')}")
-    print(f"  - {os.path.join(output_dir, 'kmeans_drivers.png')}")
-    print(f"  - {os.path.join(output_dir, 'kmeans_counterfactuals.png')}")
+    print(f"  - {os.path.join(output_dir, 'kmeans_gauge.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'kmeans_drivers.jpg')}")
+    print(f"  - {os.path.join(output_dir, 'kmeans_counterfactuals.jpg')}")
 
 
 if __name__ == "__main__":

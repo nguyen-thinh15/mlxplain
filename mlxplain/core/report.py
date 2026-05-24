@@ -16,6 +16,7 @@ class FeatureDriver:
     value: float
     impact: float
     direction: str  # "positive" or "negative"
+    per_class_impacts: dict[str, float] | None = None
 
 
 @dataclass
@@ -41,3 +42,5 @@ class ExplanationReport:
     figures: dict[str, Figure] = field(default_factory=dict)
     summary: str = ""
     domain_output: dict[str, Any] = field(default_factory=dict)
+    probabilities: dict[str, float] | None = None
+    plotly_figures: dict[str, Any] | None = None

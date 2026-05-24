@@ -1,12 +1,23 @@
-"""End-to-end tests for EnsembleTranslator (XGBoost and LightGBM explanations)."""
+import importlib.util
 
-import lightgbm as lgb
 import numpy as np
 import pytest
-import xgboost as xgb
 
 from mlxplain import explain
 from mlxplain.core.report import ExplanationReport, FeatureDriver
+
+has_deps = (
+    importlib.util.find_spec("lightgbm") is not None
+    and importlib.util.find_spec("shap") is not None
+    and importlib.util.find_spec("xgboost") is not None
+)
+
+if has_deps:
+    import lightgbm as lgb
+    import xgboost as xgb
+
+# Module-level skip
+pytestmark = pytest.mark.skipif(not has_deps, reason="shap, xgboost, and lightgbm are required for ensemble tests")
 
 
 @pytest.fixture
