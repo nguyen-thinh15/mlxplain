@@ -123,6 +123,8 @@ report.figures["counterfactuals"].savefig("counterfactuals.svg")
 | **Logistic Regression** | Coefficient weights × feature values | **Analytical:** Mathematical exact-solution inversion |
 | **Decision Trees & Random Forests** | Split-level class probability differences along decision paths | **Perturbation:** Iterative split-boundary space search |
 | **Ensemble Boosting** *(XGBoost & LightGBM)* | SHAP (Shapley Additive exPlanations) values | **Perturbation:** Sample-bounded boundary search |
+| **Anomaly Detection** *(Isolation Forest)* | SHAP `TreeExplainer` on isolation trees | **Perturbation:** Iterative score boundary search |
+| **Clustering** *(K-Means)* | Spatial distance differences vs target centroid | **Analytical:** Exact L2 half-space mathematical projection |
 | **Deep Learning** *(Neural Nets)* | LIME / Integrated Gradients | *(Planned / Deferred)* |
 
 ### Charts Across All Model Types
@@ -202,9 +204,33 @@ uv run python examples/03_ensemble_credit_risk.py
 
 # 4. Run the Advanced 12-Feature HTML Dossier Credit Risk example
 uv run python examples/04_advanced_credit_risk.py
+
+# 5. Run the Unsupervised Anomaly Detection example
+uv run python examples/05_anomaly_detection.py
+
+# 6. Run the Unsupervised KMeans Customer Segmentation example
+uv run python examples/06_kmeans_clustering.py
 ```
 
 All examples save their generated plots to `examples/output/`. The advanced example also creates `dossier.html` in that directory — open it in your browser to view the interactive glassmorphic dashboard!
+
+---
+
+## 🌀 Unsupervised Model Explainability
+
+**mlxplain** is the first general-purpose explainability engine to unify supervised classification with **unsupervised learning XAI** (Anomaly Detection & Clustering) under the exact same visual and structured output reporting standards!
+
+### 1. Anomaly Detection (via `IsolationForest`)
+* **Standardized Anomaly Scoring**: We normalize scikit-learn's Isolation Forest anomaly scores into $[0, 1]$, treating it exactly like a probability with a standard `0.5` decision boundary. Accessible via the unified `explain()` API.
+* **SHAP Drivers**: Uses SHAP's `TreeExplainer` on isolation trees to extract exact features pushing the instance into anomalous vs normal states.
+* **Cure Counterfactuals**: Employs sample-bounded perturbation search to identify the exact feature changes needed to restore the anomalous system to normal behavior.
+
+### 2. Clustering (via `KMeans`)
+* **Dedicated Endpoint**: Introduces `explain_cluster()` to explain K-Means cluster assignments vs runner-up or target clusters.
+* **Distance Drivers**: Measures how much each feature contributes to keeping the instance closer to the assigned centroid $c$ rather than the competitor centroid $t$:
+  $$\text{impact}_i = (x_i - t_i)^2 - (x_i - c_i)^2$$
+* **Closed-Form Upgrade Roadmap**: Utilizes a highly robust, exact **L2 mathematical projection** to calculate the absolute minimum single/multi-feature changes needed to transition the instance to a target cluster *instantly* with zero loops!
+* **Cluster Gauge Score**: Normalizes Euclidean distance vectors into a $[0, 1]$ proximity score ($p = d_t^2 / (d_c^2 + d_t^2)$) to reuse the standard gauge visualization.
 
 ---
 

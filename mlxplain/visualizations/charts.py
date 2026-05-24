@@ -57,8 +57,8 @@ def plot_drivers_waterfall(
         return fig
 
     names = [d.feature for d in all_drivers]
-    impacts = [d.impact if d.direction == "positive" else -d.impact for d in all_drivers]
-    colors = ["#F44336" if d.direction == "positive" else "#4CAF50" for d in all_drivers]
+    impacts = [d.impact if d.direction in ("positive", "tích cực") else -d.impact for d in all_drivers]
+    colors = ["#F44336" if d.direction in ("positive", "tích cực") else "#4CAF50" for d in all_drivers]
 
     fig = Figure(figsize=(8, max(2, len(names) * 0.4)))
     ax = fig.add_subplot(111)
