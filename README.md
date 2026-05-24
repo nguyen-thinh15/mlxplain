@@ -18,11 +18,14 @@
 
 ## 🔥 What You Get
 
-**One function call. Three professional outputs.** No configuration needed.
+**One function call. Multi-pillar professional outputs.** No complex configuration needed.
 
 <p align="center">
   <img src="docs/images/workflow_diagram.png" alt="mlxplain workflow: Train → Explain → Results" width="650"/>
 </p>
+
+### 💻 Standing Out: Premium HTML Risk Dossier
+In addition to standard text memos and charts, `mlxplain` generates a fully standalone, **premium glassmorphic HTML Credit Risk Dossier** with inlined high-resolution vector SVGs. This provides a portable, compliance-ready interactive risk dashboard out-of-the-box!
 
 ### 📊 Auto-Generated Diagnostic Charts
 
@@ -47,24 +50,34 @@ For declined applicants, **mlxplain** generates a compliance-ready text summary 
 
 ```text
 ============================================================
-CREDIT UNDERWRITING MEMO
+CREDIT UNDERWRITING MEMO (XGBoost SHAP / RandomForest XAI)
 ============================================================
 CREDIT DECISION: Declined
-Default Probability: 100.0% (threshold: 40.0%)
+Default Probability: 65.7% (threshold: 45.0%)
 
 RISK FACTORS:
-  - Debt-to-Income (%): 38.58 (impact: 63.30)
+  - Derogatory Public Records: 2 (impact: 0.1789)
+  - Credit Score (FICO): 612.7 (impact: 0.1597)
+  - Debt-to-Income (%): 42.54 (impact: 0.1022)
+  - Loan-to-Value Ratio (%): 92.13 (impact: 0.08839)
+  - Annual Income ($k): 68.41 (impact: 0.05231)
+  - Credit Card Utilization (%): 25.97 (impact: 0.03185)
+  - Employment Duration (yrs): 5.625 (impact: 0.005195)
+  - Open Credit Lines: 6 (impact: 0.001935)
+  - Requested Loan Amount ($k): 31.06 (impact: 0.0003766)
 
 MITIGATING FACTORS:
-  + Credit Score: 600.3 (impact: 179.0)
-  + Months Employed: 66.17 (impact: 27.96)
-  + Income (k$): 79.93 (impact: 19.17)
+  + Savings Balance ($k): 27.25 (impact: 0.06112)
+  + On-Time Payment (%): 99.89 (impact: 0.01372)
+  + Years of Credit History: 10.78 (impact: 8.391e-05)
 
 CURE PATHS (changes needed for approval):
-  → Debt-to-Income (%): decrease from 38.58 to 8.41
-  → Months Employed: increase from 66.17 to 183.30
-  → Credit Score: increase from 600.3 to 766.30
-  → Income (k$): increase from 79.93 to 286.30
+  → Derogatory Public Records: decrease from 2 to 0.92
+  → Savings Balance ($k): increase from 27.25 to 30.52
+  → Credit Card Utilization (%): decrease from 25.97 to 16.62
+  → Debt-to-Income (%): decrease from 42.54 to 29.78
+  → Loan-to-Value Ratio (%): decrease from 92.13 to 75.54
+  → Credit Score (FICO): increase from 612.7 to 686.2
 ============================================================
 ```
 
@@ -73,22 +86,30 @@ CURE PATHS (changes needed for approval):
 ## ⚡ Quick Start (4 Lines)
 
 ```python
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from mlxplain import explain_risk
 
-# 1. Fit your standard ML model
-model = LogisticRegression().fit(X_train, y_train)
+# 1. Fit your standard ML model (e.g. 12-feature credit scoring model)
+model = RandomForestClassifier().fit(X_train, y_train)
 
-# 2. Generate a comprehensive credit underwriting explanation in 1 call!
-report = explain_risk(model, X_train, idx=0, feature_names=["Income", "DTI", "Credit Score", "Tenure"])
+# 2. Define the 12 comprehensive attributes
+feature_names = [
+    "Annual Income ($k)", "Debt-to-Income (%)", "Credit Score (FICO)",
+    "Employment Duration (yrs)", "Savings Balance ($k)", "Requested Loan Amount ($k)",
+    "Loan-to-Value Ratio (%)", "Open Credit Lines", "On-Time Payment (%)",
+    "Derogatory Public Records", "Credit Card Utilization (%)", "Years of Credit History"
+]
 
-# 3. Print a fully-formatted Credit Underwriting Memo
+# 3. Generate visual & compliance explanation report in 1 call!
+report = explain_risk(model, X_train, idx=10, feature_names=feature_names, threshold=0.45)
+
+# 4. Print the professional credit underwriting memo
 print(report.summary)
 
-# 4. Save professional diagnostic charts
-report.figures["gauge"].savefig("gauge.png")
-report.figures["drivers"].savefig("drivers.png")
-report.figures["counterfactuals"].savefig("counterfactuals.png")
+# 5. Save vector SVG diagnostic charts
+report.figures["gauge"].savefig("gauge.svg")
+report.figures["drivers"].savefig("drivers.svg")
+report.figures["counterfactuals"].savefig("counterfactuals.svg")
 ```
 
 ---
@@ -178,9 +199,12 @@ uv run python examples/02_decision_tree_credit_risk.py
 
 # 3. Run the XGBoost SHAP-based Credit Risk example
 uv run python examples/03_ensemble_credit_risk.py
+
+# 4. Run the Advanced 12-Feature HTML Dossier Credit Risk example
+uv run python examples/04_advanced_credit_risk.py
 ```
 
-All examples save their generated plots to `examples/output/`.
+All examples save their generated plots to `examples/output/`. The advanced example also creates `dossier.html` in that directory — open it in your browser to view the interactive glassmorphic dashboard!
 
 ---
 

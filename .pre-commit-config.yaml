@@ -20,7 +20,7 @@ repos:
     rev: v0.11.12
     hooks:
       - id: ruff                       # lint
-        args: ["--fix", "--exit-non-zero-on-fix"]
+        args: ["--fix"]
       - id: ruff-format               # format
 
   # ── Bandit — Python security linter ────────────────────────────────────

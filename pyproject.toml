@@ -48,6 +48,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101", "S106"]  # allow assert + hardcoded passwords in tests
+"examples/**/*.py" = ["E501"]  # allow long HTML lines and text strings in examples
 
 [tool.ruff.format]
 quote-style = "double"
