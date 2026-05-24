@@ -12,6 +12,9 @@ from mlxplain.translators.base import BaseTranslator
 class TreeTranslator(BaseTranslator):
     """Translates decision tree / random forest predictions into feature contributions."""
 
+    def __init__(self, language: str = "en"):
+        super().__init__(language)
+
     def get_probability(self, model, X: np.ndarray, idx: int) -> float:
         instance = X[idx].reshape(1, -1)
         return float(model.predict_proba(instance)[0, 1])
@@ -75,12 +78,17 @@ class TreeTranslator(BaseTranslator):
             if abs(mean_contrib) < 1e-10:
                 continue
 
+            if self.language == "vi":
+                direction = "tích cực" if mean_contrib >= 0 else "tiêu cực"
+            else:
+                direction = "positive" if mean_contrib >= 0 else "negative"
+
             drivers.append(
                 FeatureDriver(
                     feature=name,
                     value=float(instance[feat_idx]),
                     impact=float(abs(mean_contrib)),
-                    direction="positive" if mean_contrib >= 0 else "negative",
+                    direction=direction,
                 )
             )
 

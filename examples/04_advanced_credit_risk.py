@@ -928,6 +928,25 @@ def main():
         report.figures["drivers"].savefig(drivers_path, format="svg", bbox_inches="tight", transparent=True)
         report.figures["counterfactuals"].savefig(cf_path, format="svg", bbox_inches="tight", transparent=True)
 
+        # Also save high-resolution PNGs to docs/images/ for README displays to align with the 12-feature datasets
+        docs_images_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs", "images")
+        os.makedirs(docs_images_dir, exist_ok=True)
+        report.figures["gauge"].savefig(
+            os.path.join(docs_images_dir, f"{cfg['prefix']}_gauge.png"), dpi=150, bbox_inches="tight", transparent=True
+        )
+        report.figures["drivers"].savefig(
+            os.path.join(docs_images_dir, f"{cfg['prefix']}_drivers.png"),
+            dpi=150,
+            bbox_inches="tight",
+            transparent=True,
+        )
+        report.figures["counterfactuals"].savefig(
+            os.path.join(docs_images_dir, f"{cfg['prefix']}_counterfactuals.png"),
+            dpi=150,
+            bbox_inches="tight",
+            transparent=True,
+        )
+
         print("  - Compiling premium HTML dossier...")
         gauge_svg = read_svg_content(gauge_path)
         drivers_svg = read_svg_content(drivers_path)

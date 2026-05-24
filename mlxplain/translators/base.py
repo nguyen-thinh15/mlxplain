@@ -12,6 +12,9 @@ from mlxplain.core.report import Counterfactual, FeatureDriver
 class BaseTranslator(ABC):
     """Interface that every model-type translator must implement."""
 
+    def __init__(self, language: str = "en"):
+        self.language = language
+
     @abstractmethod
     def get_probability(self, model, X: np.ndarray, idx: int) -> float:
         """Return P(positive class) for instance at index `idx`."""

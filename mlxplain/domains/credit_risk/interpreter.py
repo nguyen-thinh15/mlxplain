@@ -22,17 +22,22 @@ class CreditRiskDomain(BaseDomain):
     negative_label = "Approved"
 
     def interpret(self, report: ExplanationReport) -> ExplanationReport:
+        language = report.domain_output.get("language", "en")
+        pos_label = "Từ chối" if language == "vi" else self.positive_label
+        neg_label = "Phê duyệt" if language == "vi" else self.negative_label
+
         # Re-classify with credit risk labels
-        decision = self.positive_label if report.probability >= report.threshold else self.negative_label
+        decision = pos_label if report.probability >= report.threshold else neg_label
 
         report.prediction = decision
         report.domain_output = {
-            "positive_label": self.positive_label,
-            "negative_label": self.negative_label,
+            "positive_label": pos_label,
+            "negative_label": neg_label,
             "decision": decision,
             "risk_factors": report.positive_drivers,
             "mitigating_factors": report.negative_drivers,
             "cure_paths": report.counterfactuals,
+            "language": language,
         }
         report.summary = generate_credit_memo(report)
         return report
