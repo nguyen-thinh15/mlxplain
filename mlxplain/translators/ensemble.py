@@ -84,26 +84,22 @@ class EnsembleTranslator(BaseTranslator):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
-            try:
-                explainer = shap.TreeExplainer(model)
-                shap_values = explainer.shap_values(instance.reshape(1, -1))
-            except Exception:
-                # Fallback to model-agnostic explainer
-                # To keep it extremely fast, use a small sample (max 100 rows) of X as background data
-                bg_data = X
-                if len(bg_data) > 100:
-                    indices = np.linspace(0, len(bg_data) - 1, 100, dtype=int)
-                    bg_data = bg_data[indices]
+            # Use model-agnostic explainer to guarantee probability-space SHAP values,
+            # which are consistent with the rest of the package, visual waterfall charts,
+            # and backward-compatible with baseline golden snapshots.
+            bg_data = X
+            if len(bg_data) > 100:
+                indices = np.linspace(0, len(bg_data) - 1, 100, dtype=int)
+                bg_data = bg_data[indices]
 
-                def predict_fn(x):
-                    if is_multiclass:
-                        # For multiclass, predict_proba returns (n_samples, n_classes)
-                        return model.predict_proba(x)
-                    return model.predict_proba(x)[:, 1]
+            def predict_fn(x):
+                if is_multiclass:
+                    return model.predict_proba(x)
+                return model.predict_proba(x)[:, 1]
 
-                explainer = shap.Explainer(predict_fn, bg_data)
-                shap_explanation = explainer(instance.reshape(1, -1))
-                shap_values = shap_explanation.values
+            explainer = shap.Explainer(predict_fn, bg_data)
+            shap_explanation = explainer(instance.reshape(1, -1))
+            shap_values = shap_explanation.values
 
         canonical_shap = _canonicalize_shap_values(shap_values, n_features, n_classes)
 
